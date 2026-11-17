@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      
+      :root { --ink: #22303a; --ink-2: #46545e; --gold: #aa8421; --gold-deep: #6b5012; --err: #b5523b; --glass: rgba(255,255,255,.86); --glass-edge: rgba(255,255,255,.95);
+        --shadow-sm: inset 0 2px 0 rgba(255,255,255,.9), 0 1px 2px rgba(28,42,52,.05), 0 10px 26px -8px rgba(28,42,52,.16); }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: #f1f3f4; }
+      #root { position: relative; width: 1920px; height: 1080px; font-family: "Inter", sans-serif; color: var(--ink); background: linear-gradient(180deg, #f6f7f8 0%, #eef1f3 100%); }
+      .scene { position: absolute; inset: 0; }
+      #bg { position: absolute; inset: 0; overflow: hidden; }
+      #glow-gold { position: absolute; left: 1150px; top: -200px; width: 1100px; height: 760px; border-radius: 50%; background: radial-gradient(closest-side, rgba(222,164,18,.3), rgba(222,164,18,.11) 55%, transparent); }
+      #glow-teal { position: absolute; left: -300px; top: 520px; width: 1220px; height: 800px; border-radius: 50%; background: radial-gradient(closest-side, rgba(18,128,172,.26), rgba(18,128,172,.09) 55%, transparent); }
+      .title { position: absolute; left: 240px; top: 140px; font-size: 76px; font-weight: 500; line-height: 1.15; }
+      .title em { font-style: normal; font-weight: 600; color: var(--gold-deep); }
+      .bot { position: absolute; filter: drop-shadow(0 12px 16px rgba(28,42,52,.18)); }
+      .bot svg { width: 100%; height: 100%; display: block; }
+      .glass { background: var(--glass); border: 1.5px solid var(--glass-edge); box-shadow: var(--shadow-sm); }
+      .card { position: absolute; width: 280px; height: 176px; background: var(--glass); border: 1.5px solid var(--glass-edge); border-radius: 26px; box-shadow: var(--shadow-sm); padding: 34px 30px; }
+      .card i { display: block; height: 14px; border-radius: 7px; background: #dfe4e8; margin-bottom: 24px; }
+      .card i:first-child { width: 55%; background: var(--gold); }
+      #panel { position: absolute; left: 1040px; top: 270px; width: 640px; height: 530px; border-radius: 32px; padding: 44px 48px; }
+      #panel .head { display: flex; justify-content: space-between; align-items: baseline; font-size: 40px; font-weight: 500; color: var(--ink-2); }
+      #panel .pcts { position: relative; width: 120px; height: 48px; }
+      .pct { position: absolute; right: 0; top: 0; font-size: 44px; font-weight: 600; color: var(--gold-deep); opacity: 0; }
+      #bar { margin-top: 22px; height: 18px; border-radius: 9px; background: #e3e7ea; overflow: hidden; }
+      #bar i { display: block; width: 100%; height: 100%; border-radius: 9px; background: var(--gold); transform-origin: left center; }
+      .err { position: absolute; left: 48px; right: 48px; height: 72px; border-radius: 18px; background: rgba(181,82,59,.08); border: 1.5px solid rgba(181,82,59,.22); font-size: 38px; font-weight: 500; line-height: 70px; padding-left: 24px; color: var(--ink); }
+      .err b { color: var(--err); margin-right: 18px; font-weight: 600; }
+      svg.lines { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+      #lead-label { position: absolute; left: 260px; width: 320px; top: 640px; text-align: center; font-size: 38px; font-weight: 500; color: var(--ink-2); }
+      .task { position: absolute; left: 1120px; width: 560px; height: 104px; border-radius: 26px; background: var(--glass); border: 1.5px solid var(--glass-edge); box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: space-between; padding: 0 36px; font-size: 44px; font-weight: 500; }
+      .task b { width: 60px; height: 60px; border-radius: 50%; background: var(--gold); color: #fff; font-size: 36px; line-height: 60px; text-align: center; font-weight: 600; }
+      #captions { position: absolute; inset: 0; }
+      .cap { position: absolute; left: 360px; width: 1200px; top: 850px; text-align: center; opacity: 0; }
+      .cap span { display: inline-block; max-width: 1200px; padding: 10px 28px; border-radius: 20px; background: var(--glass); border: 1.5px solid var(--glass-edge); box-shadow: var(--shadow-sm); font-size: 48px; font-weight: 500; line-height: 1.3; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="7.04" data-width="1920" data-height="1080">
+      <svg width="0" height="0" style="position:absolute"><defs>
+        <linearGradient id="gG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B8922F"/><stop offset="1" stop-color="#7E5F14"/></linearGradient>
+        <symbol id="hexG" viewBox="0 0 100 100"><path d="M39.6,12.0 Q50.0,6.0 60.4,12.0 L77.7,22.0 Q88.1,28.0 88.1,40.0 L88.1,60.0 Q88.1,72.0 77.7,78.0 L60.4,88.0 Q50.0,94.0 39.6,88.0 L22.3,78.0 Q11.9,72.0 11.9,60.0 L11.9,40.0 Q11.9,28.0 22.3,22.0 Z" fill="url(#gG)"/></symbol>
+        <symbol id="hexW" viewBox="0 0 100 100"><path d="M39.6,12.0 Q50.0,6.0 60.4,12.0 L77.7,22.0 Q88.1,28.0 88.1,40.0 L88.1,60.0 Q88.1,72.0 77.7,78.0 L60.4,88.0 Q50.0,94.0 39.6,88.0 L22.3,78.0 Q11.9,72.0 11.9,60.0 L11.9,40.0 Q11.9,28.0 22.3,22.0 Z" fill="#fff" fill-opacity=".86" stroke="#AA8421" stroke-width="4.5"/></symbol>
+        <symbol id="faceD" viewBox="0 0 100 100"><circle cx="40" cy="47" r="4.6" fill="#22303A"/><circle cx="60" cy="47" r="4.6" fill="#22303A"/><path d="M41 60 Q50 66.5 59 60" fill="none" stroke="#22303A" stroke-width="4" stroke-linecap="round"/></symbol>
+        <symbol id="faceL" viewBox="0 0 100 100"><circle cx="40" cy="47" r="4.6" fill="#fff"/><circle cx="60" cy="47" r="4.6" fill="#fff"/><path d="M41 60 Q50 66.5 59 60" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/></symbol>
+      </defs></svg>
+      <div id="bg" class="clip" data-start="0" data-duration="7.04" data-track-index="1"><div id="glow-gold"></div><div id="glow-teal"></div></div>
+
+      <div id="s1" class="scene clip" data-start="0" data-duration="2.99" data-track-index="0">
+        <div id="s1-title" class="title">Slow and <em>messy</em></div>
+        <div id="s1-pile" class="scene"><div class="card" style="left:430px; top:600px"><i></i><i></i><i></i></div>
+<div class="card" style="left:470px; top:545px"><i></i><i></i><i></i></div>
+<div class="card" style="left:415px; top:490px"><i></i><i></i><i></i></div>
+<div class="card" style="left:480px; top:435px"><i></i><i></i><i></i></div>
+<div class="card" style="left:440px; top:380px"><i></i><i></i><i></i></div>
+<div class="card" style="left:465px; top:325px"><i></i><i></i><i></i></div></div>
+        <div id="s1-bot" class="bot" style="left:510px; top:600px; width:180px; height:180px"><svg viewBox="0 0 100 100"><use href="#hexW"/><use href="#faceD"/></svg></div>
+        <div id="panel" class="glass">
+          <div class="head"><span>Progress</span><span class="pcts"><span class="pct" id="pct0">2%</span>
+<span class="pct" id="pct1">4%</span>
+<span class="pct" id="pct2">5%</span>
+<span class="pct" id="pct3">6%</span></span></div>
+          <div id="bar"><i></i></div>
+<div class="err" id="err0" style="top:218px"><b>✕</b>Missed details</div>
+<div class="err" id="err1" style="top:310px"><b>✕</b>Contradictions</div>
+<div class="err" id="err2" style="top:402px"><b>✕</b>Start over</div>
+        </div>
+      </div>
+
+      <div id="s2" class="scene clip" data-start="2.99" data-duration="4.05" data-track-index="0">
+        <div id="s2-title" class="title">Split it <em>just right</em></div>
+        <svg class="lines" id="s2-lines"><path d="M520,520 C750,520 700,300 915,300" fill="none" stroke="#AA8421" stroke-width="5" stroke-dasharray="14 12" stroke-linecap="round"/>
+<path d="M520,520 C750,520 700,520 915,520" fill="none" stroke="#AA8421" stroke-width="5" stroke-dasharray="14 12" stroke-linecap="round"/>
+<path d="M520,520 C750,520 700,740 915,740" fill="none" stroke="#AA8421" stroke-width="5" stroke-dasharray="14 12" stroke-linecap="round"/></svg>
+        <div id="s2-boss" class="bot" style="left:320px; top:420px; width:200px; height:200px"><svg viewBox="0 0 100 100"><use href="#hexG"/><use href="#faceL"/></svg></div>
+        <div id="lead-label">Lead agent</div>
+<div id="s2-b0" class="bot" style="left:925px; top:225px; width:150px; height:150px"><svg viewBox="0 0 100 100"><use href="#hexW"/><use href="#faceD"/></svg></div>
+<div id="s2-b1" class="bot" style="left:925px; top:445px; width:150px; height:150px"><svg viewBox="0 0 100 100"><use href="#hexW"/><use href="#faceD"/></svg></div>
+<div id="s2-b2" class="bot" style="left:925px; top:665px; width:150px; height:150px"><svg viewBox="0 0 100 100"><use href="#hexW"/><use href="#faceD"/></svg></div>
+<div class="task" id="task0" style="top:248px"><span>Script</span><b id="ok0">✓</b></div>
+<div class="task" id="task1" style="top:468px"><span>Visuals</span><b id="ok1">✓</b></div>
+<div class="task" id="task2" style="top:688px"><span>Voice</span><b id="ok2">✓</b></div>
+      </div>
+
+      <div id="captions" class="clip" data-start="0" data-duration="7.04" data-track-index="2">
+<div class="cap" id="cap0"><span>One AI doing everything is slow and messy</span></div>
+<div class="cap" id="cap1"><span>Split the work across agents</span></div>
+<div class="cap" id="cap2"><span>and keep it just right</span></div>
+      </div>
+      <audio id="voice" class="clip" src="assets/voice.mp3" data-start="0" data-track-index="5" data-volume="1"></audio>
+    </div>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo("#glow-gold", { scale: 0.94 }, { scale: 1.06, duration: 4, ease: "sine.inOut", yoyo: true, repeat: 3 }, 0);
+      tl.fromTo("#s1-title", { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.35, ease: "power3.out" }, 0.15);
+      gsap.utils.toArray("#s1-pile .card").forEach((c, i) => {
+        tl.fromTo(c, { opacity: 0, y: -80, rotation: 0 }, { opacity: 1, y: 0, rotation: [-6, 5, -9, 7, -4, 10][i], duration: 0.3, ease: "power2.out" }, 0.25 + i * 0.12);
+      });
+      tl.fromTo("#s1-bot", { y: 0 }, { y: 8, duration: 0.12, ease: "sine.inOut", yoyo: true, repeat: 11 }, 1.1);
+      tl.fromTo("#panel", { opacity: 0, x: 60 }, { opacity: 1, x: 0, duration: 0.4, ease: "power3.out" }, 0.2);
+      tl.fromTo("#bar i", { scaleX: 0 }, { scaleX: 0.06, duration: 2.6, ease: "none" }, 0.3);
+      tl.set("#pct0", { opacity: 1 }, 0.3); tl.set("#pct0", { opacity: 0 }, 1.0);
+      tl.set("#pct1", { opacity: 1 }, 1.0); tl.set("#pct1", { opacity: 0 }, 1.7);
+      tl.set("#pct2", { opacity: 1 }, 1.7); tl.set("#pct2", { opacity: 0 }, 2.3999999999999995);
+      tl.set("#pct3", { opacity: 1 }, 2.3999999999999995); 
+      ["#err0", "#err1", "#err2"].forEach((e, i) => tl.fromTo(e, { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: 0.3, ease: "back.out(1.8)" }, 0.7 + i * 0.5));
+      tl.fromTo("#s2-title", { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.35, ease: "power3.out" }, 3.04);
+      tl.fromTo("#s2-boss", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.45, ease: "back.out(1.6)" }, 3.04);
+      tl.fromTo("#lead-label", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 3.29);
+      tl.fromTo("#s2-lines path", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.4, stagger: 0.1 }, 3.39);
+      [0, 1, 2].forEach(i => {
+        tl.fromTo("#s2-b" + i, { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" }, 3.5900000000000003 + i * 0.12);
+        tl.fromTo("#task" + i, { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: 0.35, ease: "power3.out" }, 3.74 + i * 0.12);
+        tl.fromTo("#ok" + i, { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2.4)" }, 4.59 + i * 0.35);
+      });
+      tl.set("#cap0", { opacity: 1 }, 0.11); tl.set("#cap0", { opacity: 0 }, 3.14);
+      tl.set("#cap1", { opacity: 1 }, 3.14); tl.set("#cap1", { opacity: 0 }, 4.91);
+      tl.set("#cap2", { opacity: 1 }, 4.91); tl.set("#cap2", { opacity: 0 }, 6.46);
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
