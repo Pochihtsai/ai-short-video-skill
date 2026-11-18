@@ -49,8 +49,8 @@ description: 用 HyperFrames 做中文或英文的短片，直式（1080×1920�
 - **製作**：
   1. 配音：`scripts/tts_words.py` 同時產生 `voice.mp3` 和 `words.json`（逐詞時間）
   2. 動畫：用 `words.json` 決定每一幕的起訖時間和每個元素出現的時間點。寫法參考 `templates/`：直式看 `example_A_v3.html`，橫式看 `example_landscape_en.html`；風格照第 3 關選定的那張圖
-  3. 字幕：用 `scripts/make_captions.py` 切，不要自己用 `words.json` 拼（會掉中英文之間的空格、在怪地方斷句）
-  4. 第一版就配好音樂和音效，不交無聲版
+  3. 字幕：用 `scripts/make_captions.py` 切，不要自己用 `words.json` 拼（會掉中英文之間的空格、在怪地方斷句）；再用 `scripts/captions_html.py captions.json index.html [最後一組延長到第幾秒]` 放進 `index.html`。templates 的字幕區已經有 `<!-- captions:begin -->`、`<!-- captions:end -->` 兩行標記和字幕迴圈，不要手寫字幕的 div 和 tl.set
+  4. 第一版就配好音樂和音效，不交無聲版。配樂用 `scripts/prep_music.py` 剪長度、統一響度；**輸出影片前**用 `scripts/music_volume.py` 算出 `data-volume`，不要輸出後才發現太大聲再重新輸出
   5. 自檢後輸出，見下方「自檢」。音樂要標示作者時，把說明欄要貼的標示文字一起交給使用者
 - 做完把這次新確定的規則補進本檔
 
@@ -147,7 +147,7 @@ description: 用 HyperFrames 做中文或英文的短片，直式（1080×1920�
      - 想要古典樂時，到 Wikimedia Commons 找公共領域或 CC 授權的錄音（可以用 API 查授權：`action=query&prop=imageinfo&iiprop=url|size|extmetadata`）
      - 這幾個都找不到合適的，可以自己上網找別的免費可商用來源，但要確認授權，而且 Claude 能直接下載
   3. 在第 3 關挑 2–3 首給使用者：推薦理由、來源、授權、要不要標示作者，並剪一段 15 秒左右的試聽檔
-  4. 使用者選好後下載到 `assets/bgm/source/`，剪成影片長度放在 `assets/bgm/`
+  4. 使用者選好後下載到 `assets/bgm/source/`，用 `python -I scripts/prep_music.py <原曲> assets/bgm/bgm.mp3 <影片秒數> [起點秒數]` 剪成影片長度
 - **授權**：
   - 可以用：公共領域、CC0、CC BY（要標示作者）、Mixkit 免費音樂授權
   - CC BY-SA 可以用，但「相同方式分享」的條款會延伸到整支影片，要先告訴使用者
@@ -155,9 +155,10 @@ description: 用 HyperFrames 做中文或英文的短片，直式（1080×1920�
   - 古典樂的曲子沒有版權，但**錄音另外有版權**，要看錄音本身的授權；公共領域的老錄音常是單聲道、低位元率，音質差
   - 下載前要看曲目頁面的標籤和說明，確認是不是改編版（曾經遇過標題是莫札特、其實是電吉他重金屬改編）
 - **混音**：
-  - 用 loudnorm 正規化到 -20 LUFS，結尾 2 秒淡出，`data-volume` 先設 0.45，量過再調。0.45 不是每首都適用：2026-11-18 升降桌片的 Digital Clouds 在 0.45 時空檔只比配音低 7 dB，要降到 0.16 才低 13–15 dB
+  - 用 loudnorm 正規化到 -20 LUFS，結尾 2 秒淡出（`prep_music.py` 會做）
+  - `data-volume` 每首都要算，不要套固定值：`python -I scripts/music_volume.py assets/voice.mp3 words.json assets/bgm/bgm.mp3`。2026-11-18 升降桌片的 Digital Clouds 算出 0.21，舊的固定值 0.45 會讓空檔的音樂只比配音低約 9 dB
   - 目標是配音空檔的音樂比配音低 14–19 dB；低到 -40 dB 就幾乎聽不到了
-  - 用 `scripts/audio_levels.py` 量。挑空檔時要避開音效的時間點，不然量到的是音效，不是音樂
+  - 輸出後用 `python -I scripts/audio_levels.py <影片> words.json <空檔起點:長度>...` 複查。要給 words.json：沒給時配音段固定量 5–7 秒，這兩秒裡有停頓就會量得太小聲（升降桌片少算約 3 dB，誤以為音樂太大聲而多重新輸出一次）。挑空檔要避開音效的時間點
 - **音效**：初稿就配上。從音效庫複製到專案的 `assets/sfx/`，音量 0.3–0.5，在換場、元素出現、強調的地方用，一支 30 秒的片 4–8 個就夠
 
 ## 自檢
@@ -165,7 +166,7 @@ description: 用 HyperFrames 做中文或英文的短片，直式（1080×1920�
 1. 跑 check（上面的指令）
 2. `npx hyperframes snapshot --at <各幕關鍵秒數>`，用 Read 看 contact sheet：文字有沒有擠、重疊、超出畫面，有沒有壓到字幕
 3. 輸出：`npx hyperframes render --quality delivery -o renders/<名稱>_vN.mp4`，一支 30 秒的片大約要 3 分鐘
-4. **從成品驗收**：用 `scripts/frame_sheet.py` 抽 8 格看（依片長平均取格，直式、橫式都能用），用 ffprobe 確認長度、解析度（1080×1920 或 1920×1080）、有音軌，再跑 `scripts/audio_levels.py`
+4. **從成品驗收**：用 `scripts/frame_sheet.py` 抽 8 格看（依片長平均取格，直式、橫式都能用），用 ffprobe 確認長度、解析度（1080×1920 或 1920×1080）、有音軌，再跑 `scripts/audio_levels.py`（記得給 words.json）
 5. **版面有沒有用到這個方向的空間**：每一幕挑一個畫面都進場後的秒數，跑 `<edge-tts 環境的 python> -I scripts/measure_span.py renders/<檔名>.mp4 <秒數>...`（要用裝了 numpy、pillow 的 edge-tts 環境）。橫式的主畫面寬度要到可用範圍的 70% 以上，而且左右兩半都有內容；不到就回頭照「橫式構圖」重排。數字只是提醒，最後仍要看畫面。背景是滿版格線或紋理時（例如藍圖線稿風），整個畫面都會被算成有內容，量出來一律 125%，這時不用這個腳本，直接看畫面判斷
 6. 回報時要寫出沒有驗證到的部分。例如音效只量了音量、沒有實際聽，就要明說
 
