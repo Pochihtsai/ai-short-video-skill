@@ -1,6 +1,6 @@
 ---
 name: ai-short-video
-description: 用 HyperFrames 做中文或英文的短片，直式（1080×1920，Reels、Shorts、TikTok）或橫式（1920×1080，YouTube、簡報）都可以。流程：需求→故事線→大綱→風格與配樂（用畫面確認）→旁白稿，五關都確認才製作，內含已驗證過的規則：中英文配音和逐詞時間、直式三平台安全區與橫式安全框、Mac／Windows 字型設定、字幕斷句腳本、淺色玻璃風、依內容找免費可商用配樂（Mixkit、Openverse）、混音音量。觸發詞：「做一支短片」「做影片」「直式短片」「橫式影片」「短影音」「Reels」「Shorts」「TikTok 影片」「YouTube 影片」「英文影片」「動畫影片」「解說影片」「配字幕的影片」「再做一支」「用 HyperFrames 做」。改既有 HyperFrames 專案的細節時也用這份規則。
+description: 用 HyperFrames 做中文或英文的短片，直式（1080×1920，Reels、Shorts、TikTok）或橫式（1920×1080，YouTube、簡報）都可以。流程：需求→故事線→大綱→風格與配樂（用畫面確認）→旁白稿，五關都確認才製作，內含已驗證過的規則：中英文配音和逐詞時間、直式三平台安全區與橫式安全框、Mac／Windows 字型設定、字幕斷句腳本、依內容設計風格（公司風格可參考淺色玻璃風）、依內容找免費可商用配樂（Mixkit、Openverse）、混音音量。觸發詞：「做一支短片」「做影片」「直式短片」「橫式影片」「短影音」「Reels」「Shorts」「TikTok 影片」「YouTube 影片」「英文影片」「動畫影片」「解說影片」「配字幕的影片」「再做一支」「用 HyperFrames 做」。改既有 HyperFrames 專案的細節時也用這份規則。
 ---
 
 # 中英文短片，直式與橫式（HyperFrames）
@@ -44,11 +44,11 @@ description: 用 HyperFrames 做中文或英文的短片，直式（1080×1920�
 - **需求**：沒說方向時，發到 Reels、Shorts、TikTok 用直式，發到 YouTube 或放進簡報用橫式
 - **故事線、大綱**：台詞長度抓中文約每秒 4.2 個字（30 秒約 130 字），英文約每秒 3 個字（30 秒約 90 個字，依 Andrew 18 字樣本估計，第一支完整片後再校正）
 - **結尾**：目的是讓觀眾感覺「講完了」，並帶走一句話。2026-11-21 使用者指出三支示範片都沒有結尾感：最後一幕停住後直接切掉，AI agent 片的最後一幕還標著「STEP 06」，看起來像第六步而不是結尾
-  1. 大綱固定有最後一幕「結尾」，30 秒片約 3–4 秒、60 秒片約 4–6 秒，不放新資訊：一句記得住的核心句，需要時加一個下一步（例如下載、試試看）。第 4 關旁白稿要標出結尾那句
+  1. 大綱固定有最後一幕「結尾」，長度看結尾句和收尾動作需要多久，不放新資訊：一句記得住的核心句，需要時加一個下一步（例如下載、試試看）。第 4 關旁白稿要標出結尾那句
   2. 結尾畫面要看得出和內容不同：拿掉步驟編號、進度清單這類「還在進行中」的元素，換成收尾的版面，例如大字核心句、整個畫面拉遠看到全貌
   3. 要有一個「收」的動作，例如元素歸位、畫面拉遠、全部亮起後靜止；可以在第 3 關一起挑動態效果
-  4. 旁白講完留 1.5–2 秒，最後約 1 秒畫面淡到底色，和音樂的淡出一起結束（`prep_music.py` 已讓音樂在最後 2 秒淡出），不要停在滿版畫面直接切掉
-- **風格圖**：在 `03_風格/<風格名>/` 各放一個只有那一幕、不配音的 `index.html`（版面照下方「語言與方向」），用 `npx hyperframes snapshot --at <秒數>` 截圖給使用者看。預設推薦 `references/design-glass.md` 的淺色玻璃風，內容不適合時改推別的。圖要用跟成品同一套工具做，使用者看到什麼，成品就長什麼樣子
+  4. 旁白講完後，讓畫面停住一下再淡到底色，淡出和音樂的淡出一起結束（`prep_music.py` 讓音樂在最後 2 秒淡出），不要停在滿版畫面直接切掉
+- **風格圖**：在 `03_風格/<風格名>/` 各放一個只有那一幕、不配音的 `index.html`（版面照下方「語言與方向」），用 `npx hyperframes snapshot --at <秒數>` 截圖給使用者看。兩種風格都由 Claude 依內容設計，沒有預設風格；使用者要「公司風格」時，參考 `references/design-glass.md` 的淺色玻璃風。圖要用跟成品同一套工具做，使用者看到什麼，成品就長什麼樣子
 - **動態效果**：目的是讓動作有名字可以溝通、選了就能照著做，又不多花額度。效果來自 Motion Prompt（MIT 授權、可商用的動態效果目錄，240 個效果，每個都有會動的示範）
   1. 從大綱挑 2–4 個關鍵動作，例如數字出現、清單依序進場、圖表長出來、換場，用 `scripts/motion_catalog.py search <英文關鍵字>` 各找 3 個候選。只把搜尋結果的名稱、一句說明、示範連結給使用者，不要把整份目錄讀進對話
   2. 使用者點連結看示範後選定，把編號和用在哪一幕寫進 `03_動態.md`
@@ -58,7 +58,7 @@ description: 用 HyperFrames 做中文或英文的短片，直式（1080×1920�
 - **旁白稿與試聽**：用 `scripts/tts_words.py` 產生試聽；換聲音之前先給試聽。台詞會送到微軟的線上服務，內容敏感時先告訴使用者
 - **製作**：
   1. 配音：`scripts/tts_words.py` 同時產生 `voice.mp3` 和 `words.json`（逐詞時間）
-  2. 動畫：用 `words.json` 決定每一幕的起訖時間和每個元素出現的時間點。寫法參考 `templates/`：直式看 `example_A_v3.html`，橫式看 `example_landscape_en.html`；風格照第 3 關選定的那張圖。`03_動態.md` 有選效果的，用 `scripts/motion_catalog.py get <編號>` 讀規格（不加 `--code`），照規格裡的時間點和緩動曲線用 GSAP 改寫成本片的風格；不要直接貼它的 canvas 程式碼，那段程式碼自帶深藍配色和循環節奏（2026-11-19 實測：直接貼能輸出，但和成品風格不搭；照規格改寫的版本融入得很好）。在 HTML 註解寫上 `Motion Prompt #編號 · MIT © 2026 Shohei Ohtaki`
+  2. 動畫：用 `words.json` 決定每一幕的起訖時間和每個元素出現的時間點。寫法參考 `templates/`：直式看 `example_A_v3.html`，橫式看 `example_landscape_en.html`。範本只參考寫法（時間軸、字幕迴圈、音軌、字型設定），不要照抄它的畫面元素，例如每一幕的 STEP 標籤、六角形 agent、固定音量；風格照第 3 關選定的那張圖。`03_動態.md` 有選效果的，用 `scripts/motion_catalog.py get <編號>` 讀規格（不加 `--code`），照規格裡的時間點和緩動曲線用 GSAP 改寫成本片的風格；不要直接貼它的 canvas 程式碼，那段程式碼自帶深藍配色和循環節奏（2026-11-19 實測：直接貼能輸出，但和成品風格不搭；照規格改寫的版本融入得很好）。在 HTML 註解寫上 `Motion Prompt #編號 · MIT © 2026 Shohei Ohtaki`
   3. 字幕：用 `scripts/make_captions.py` 切，不要自己用 `words.json` 拼（會掉中英文之間的空格、在怪地方斷句）；再用 `scripts/captions_html.py captions.json index.html [最後一組延長到第幾秒]` 放進 `index.html`。templates 的字幕區已經有 `<!-- captions:begin -->`、`<!-- captions:end -->` 兩行標記和字幕迴圈，不要手寫字幕的 div 和 tl.set
   4. 第一版就配好音樂和音效，不交無聲版。配樂用 `scripts/prep_music.py` 剪長度、統一響度；**輸出影片前**用 `scripts/music_volume.py` 算出 `data-volume`，不要輸出後才發現太大聲再重新輸出
   5. 自檢後輸出，見下方「自檢」。音樂要標示作者時，把說明欄要貼的標示文字一起交給使用者
@@ -88,7 +88,7 @@ description: 用 HyperFrames 做中文或英文的短片，直式（1080×1920�
 原則：
 1. 對照、前後差異、流程步驟改成左右並排，不要上下疊
 2. 主畫面要用到大部分的可用寬度；只有中間一欄是直式的做法
-3. 每一幕從常見的三種構圖挑一種，可以混用：
+3. 常見的構圖有三種，可以參考、混用，也可以不照：
    - **左文右圖**：左邊放標題和重點句，右邊放圖
    - **左右對照**：同一個畫面裡左右擺兩種狀況，例如左邊被文件淹沒的 AI、右邊爬不動的進度和一直跳出的錯誤
    - **橫向流程**：流程或分工樹由左往右展開，例如左邊主管 agent，往右分成三個 agent，各接一張工作卡
@@ -129,14 +129,15 @@ description: 用 HyperFrames 做中文或英文的短片，直式（1080×1920�
 
 ### 風格
 
-- 預設推薦 `references/design-glass.md`（淺色玻璃風），直式、橫式都適用；在第 3 關用兩張風格圖和使用者確認，使用者指定別的風格就照他的
+- 沒有預設風格。第 3 關由 Claude 依內容設計兩種，使用者指定風格就照他的；要「公司風格」時參考 `references/design-glass.md`（淺色玻璃風）
+- 設計原則：風格從內容來（主題、觀眾、情緒），字要讀得清楚、顏色對比要夠，一個畫面只有一個重點。避開「AI 感」很重的預設長相：紫藍漸層、到處發光、每支片都一樣
 
 ## GSAP 與 check 的坑
 
 - 不能對 `letterSpacing` 做動畫，check 會報錯；改用位移加淡入
 - 被 GSAP 動到的元素不能另外寫 CSS transform
 - 重複動畫要寫有限次數的 repeat，不能寫 `repeat:-1`
-- 每個音效 `<audio>` 都要寫 `data-duration`（長度看 sfx 資料夾裡的 manifest.json），否則會被當成一路播到片尾
+- 每個音效 `<audio>` 都要寫 `data-duration`（長度看音效庫 `~/.claude/skills/media-use/audio/assets/sfx/manifest.json`，或用 ffprobe 量；複製到專案的音效沒有附這個檔），否則會被當成一路播到片尾
 - 用 `npx hyperframes check --json 2>&1 | python3 scripts/check_summary.py` 看結果（Windows 把 `python3` 換成 `python`），要做到 ok，而且沒有 outside_safe_zone
 - 已知誤判：白字疊在 SVG 圖形上時，contrast 檢查會拿背後的底色來算。看截圖確認讀得清楚就可以不改
 - 背景柔光故意超出畫面時會出現 container_overflow 警告，可以忽略
@@ -157,7 +158,7 @@ description: 用 HyperFrames 做中文或英文的短片，直式（1080×1920�
      - 想要古典樂時，到 Wikimedia Commons 找公共領域或 CC 授權的錄音（可以用 API 查授權：`action=query&prop=imageinfo&iiprop=url|size|extmetadata`）
      - 這幾個都找不到合適的，可以自己上網找別的免費可商用來源，但要確認授權，而且 Claude 能直接下載
   3. 在第 3 關挑 2–3 首給使用者：推薦理由、來源、授權、要不要標示作者，並剪一段 15 秒左右的試聽檔
-  4. 使用者選好後下載到 `assets/bgm/source/`，用 `python -I scripts/prep_music.py <原曲> assets/bgm/bgm.mp3 <影片秒數> [起點秒數]` 剪成影片長度
+  4. 使用者選好後下載到 `assets/bgm/source/`，用 `python -I scripts/prep_music.py <原曲> assets/bgm/bgm.mp3 <影片秒數> [起點秒數]` 剪成影片長度。原曲比影片短 5% 以內時腳本會自動放慢補足並說明，短更多會停下來，這時換一首較長的
 - **授權**：
   - 可以用：公共領域、CC0、CC BY（要標示作者）、Mixkit 免費音樂授權
   - CC BY-SA 可以用，但「相同方式分享」的條款會延伸到整支影片，要先告訴使用者
@@ -166,10 +167,10 @@ description: 用 HyperFrames 做中文或英文的短片，直式（1080×1920�
   - 下載前要看曲目頁面的標籤和說明，確認是不是改編版（曾經遇過標題是莫札特、其實是電吉他重金屬改編）
 - **混音**：
   - 用 loudnorm 正規化到 -20 LUFS，結尾 2 秒淡出（`prep_music.py` 會做）
-  - `data-volume` 每首都要算，不要套固定值：`python -I scripts/music_volume.py assets/voice.mp3 words.json assets/bgm/bgm.mp3`。2026-11-18 升降桌片的 Digital Clouds 算出 0.21，舊的固定值 0.45 會讓空檔的音樂只比配音低約 9 dB
+  - `data-volume` 每首都要算，不要套固定值：`python -I scripts/music_volume.py assets/audio/voice.mp3 assets/audio/words.json assets/bgm/bgm.mp3`（路徑照專案實際位置）。2026-11-18 升降桌片的 Digital Clouds 算出 0.21，舊的固定值 0.45 會讓空檔的音樂只比配音低約 9 dB
   - 目標是配音空檔的音樂比配音低 14–19 dB；低到 -40 dB 就幾乎聽不到了
-  - 輸出後用 `python -I scripts/audio_levels.py <影片> words.json <空檔起點:長度>...` 複查。要給 words.json：沒給時配音段固定量 5–7 秒，這兩秒裡有停頓就會量得太小聲（升降桌片少算約 3 dB，誤以為音樂太大聲而多重新輸出一次）。挑空檔要避開音效的時間點
-- **音效**：初稿就配上。從音效庫複製到專案的 `assets/sfx/`，音量 0.3–0.5，在換場、元素出現、強調的地方用，一支 30 秒的片 4–8 個就夠
+  - 輸出後用 `python -I scripts/audio_levels.py <影片> words.json <空檔起點:長度>...` 複查。要給 words.json：沒給時配音段固定量 5–7 秒，這兩秒裡有停頓就會量得太小聲（升降桌片少算約 3 dB，誤以為音樂太大聲而多重新輸出一次）。挑空檔要避開音效的時間點，而且從前一個字的結束時間再往後 0.1 秒起算（words.json 的字尾比實際聲音早約 0.05–0.1 秒，太早起算會把字尾量進去，誤判音樂太大聲）
+- **音效**：初稿就配上。從音效庫複製到專案的 `assets/sfx/`，音量 0.3–0.5，在換場、元素出現、強調的地方用，數量依畫面需要，不必湊數，也不要多到蓋過配音
 
 ## 自檢
 
