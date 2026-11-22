@@ -238,6 +238,8 @@ description: 用 HyperFrames 做中文或英文的短片，直式（1080×1920�
 - `data-layout-ignore` 會讓 check 以為畫面停太久而誤報；connector_orphan 也常誤判。看截圖確認沒問題就不用改
 - 拉遠的結尾、或把元素縮成小圖示時，會報 text_below_floor（字跟著縮小）。縮小的字本來就不是給人讀的、或看截圖讀得清楚，就不用改
 - 輸出中途失敗（例如 detached Frame、瀏覽器當掉）：加 `--workers 1` 重跑。同時有別的 hyperframes 預覽或輸出在跑時特別容易發生
+- Mac 的終端機（zsh）不會把變數拆成多個參數：例如 `enc="-c:v libx264 -crf 20"` 再寫 `ffmpeg ... $enc`，ffmpeg 會把整串當成一個參數而報錯。參數直接寫出來，或改用陣列
+- 在 heredoc 或迴圈裡跑 ffmpeg 要加 `-nostdin`，否則它會讀走後面還沒跑的指令，那些指令不會執行、也不會報錯
 - snapshot 除了指定的秒數，會多截一張片尾；圖存在 `.hyperframes/artifacts/snapshots/<編號>/`，看 `contact-sheet.jpg` 就好
 
 ## 聲音
