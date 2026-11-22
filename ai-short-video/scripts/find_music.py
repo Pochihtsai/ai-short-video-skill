@@ -6,7 +6,8 @@
 - Openverse：彙整多個創用 CC 音樂庫的搜尋服務。只列 CC0、公共領域、CC BY、CC BY-SA；
   不用標示的排前面，CC BY-SA（相同方式分享，條款會延伸到整支影片）排最後並標出來。
 - Mixkit：免費可商用、不用標示作者，但不能把原始音檔再散布出去。
-  標籤用網址上的英文字，例如 corporate、happy、chill、cinematic、ambient、piano、hip-hop；
+  標籤用網址上的英文字，例如 corporate、happy、chill、cinematic、ambient、piano、hip-hop（沒有 upbeat、acoustic 這類標籤，或曲子很少）；
+  只抓得到標籤頁，看不到單曲頁的曲風分類：同一個標籤裡可能混著兒歌、遊戲音樂，挑曲時看曲名，有疑慮就打開標籤頁聽；
   標籤頁網址 https://mixkit.co/free-stock-music/tag/<標籤>/，打不開就換標籤。
 兩個來源回傳的音檔網址都可以直接下載。"""
 import json, re, sys, urllib.parse, urllib.request
@@ -19,7 +20,11 @@ n = int(sys.argv[4]) if len(sys.argv) > 4 else 8
 UA = {"User-Agent": "Mozilla/5.0 (ai-short-video-skill)"}
 
 def get(url):
-    return urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=30).read().decode("utf-8")
+    try:
+        return urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=30).read().decode("utf-8")
+    except Exception as e:  # Openverse 常回 403、500，Mixkit 標籤不存在會 404；不要整個中斷
+        other = "mixkit 換一個標籤（例如 happy、corporate、chill）" if src == "openverse" else "換一個標籤，或改用 openverse"
+        sys.exit(f"{src} 連不上或沒有這個標籤（{e}）：{other}")
 
 def iso_sec(d):  # PT2M4S → 124
     m = re.match(r"PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?", d or "")

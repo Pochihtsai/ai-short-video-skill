@@ -3,7 +3,7 @@
 做法：用 words.json 找出配音連續講話的段落，和 0.5 秒以上的空檔。
 分別量講話段的配音音量、空檔裡配樂檔（已用 prep_music.py 處理過）的音量，
 算出讓空檔的音樂比配音低「目標差距」的 data-volume。規則是低 14–19 dB，取中間的 16。
-不用先輸出影片，也不會量到音效。輸出影片後仍要用 audio_levels.py 複查。需要 ffmpeg。"""
+不用先輸出影片，也不會量到音效。個別空檔超出 14–19 dB 時會逐一列出。輸出影片後仍要用 audio_levels.py 複查。需要 ffmpeg。"""
 import json, math, re, subprocess, sys
 if hasattr(sys.stdout, "reconfigure"):  # Windows 主控台預設 cp950，中文和全形符號會出錯；統一用 UTF-8
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -34,8 +34,10 @@ runs.append((s, words[-1]["t"] + words[-1]["d"]))
 runs = sorted(runs, key=lambda r: r[1] - r[0], reverse=True)[:5]
 
 v = avg_db([mean_db(voice, a, b - a) for a, b in runs])
+gap_db = []
 if gaps:
-    m = avg_db([mean_db(bgm, a, d) for a, d in gaps])
+    gap_db = [mean_db(bgm, a, d) for a, d in gaps]
+    m = avg_db(gap_db)
     where = f"{len(gaps)} 個 0.5 秒以上的空檔"
 else:
     m = mean_db(bgm, 0, words[-1]["t"])
@@ -46,3 +48,9 @@ vol = min(1.0, 10 ** ((v - target - m) / 20))
 print(f"配音（最長的 {len(runs)} 段講話）：{v:.1f} dB")
 print(f"配樂原檔在{where}：{m:.1f} dB")
 print(f"建議 data-volume = {vol:.2f}（空檔的音樂會比配音低約 {target:g} dB）")
+# 依平均算的音量，個別空檔可能超出 14–19 dB（曲子前奏輕、副歌重時常見），逐一列出提醒
+off = [(a, v - (x + 20 * math.log10(vol))) for (a, d), x in zip(gaps, gap_db) if x is not None]
+bad = [(a, diff) for a, diff in off if not 14 <= diff <= 19]
+if bad:
+    print("注意：這些空檔的音樂和配音差距超出 14–19 dB（秒數：差距）：" + "、".join(f"{a:.1f} 秒：{diff:.1f} dB" for a, diff in bad))
+    print("　　差太多（音樂太小聲）通常是曲子那段比較輕，可以接受；差太少（音樂太大聲）要換起點或降一點音量")
