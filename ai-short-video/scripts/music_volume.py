@@ -45,9 +45,14 @@ else:
 if v is None or m is None:
     sys.exit("量不到音量：確認檔案路徑和 words.json 是不是同一份配音產生的")
 vol = min(1.0, 10 ** ((v - target - m) / 20))
+# 依平均算出的音量，最大聲那段空檔可能只比配音低不到 14 dB（曲子某段特別重時常見），這時再往下調到那段低 15 dB（輸出後實測會比這裡估的少約 0.5 dB，留一點餘裕）
+loud = max([x for x in gap_db if x is not None], default=None)
+lowered = loud is not None and v - (loud + 20 * math.log10(vol)) < 15
+if lowered:
+    vol = 10 ** ((v - 15 - loud) / 20)
 print(f"配音（最長的 {len(runs)} 段講話）：{v:.1f} dB")
 print(f"配樂原檔在{where}：{m:.1f} dB")
-print(f"建議 data-volume = {vol:.2f}（空檔的音樂會比配音低約 {target:g} dB）")
+print(f"建議 data-volume = {vol:.2f}（空檔的音樂會比配音低約 {target:g} dB" + ("；為了讓最大聲的空檔也低 15 dB，已再調低）" if lowered else "）"))
 # 依平均算的音量，個別空檔可能超出 14–19 dB（曲子前奏輕、副歌重時常見），逐一列出提醒
 off = [(a, v - (x + 20 * math.log10(vol))) for (a, d), x in zip(gaps, gap_db) if x is not None]
 bad = [(a, diff) for a, diff in off if not 14 <= diff <= 19]
