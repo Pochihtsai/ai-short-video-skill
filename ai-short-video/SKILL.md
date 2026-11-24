@@ -11,6 +11,7 @@ description: 用 HyperFrames 做中文或英文的短片，直式（1080×1920�
 
 - HyperFrames：用 `npx hyperframes`；它的 skill 都在 `~/.claude/skills/`
 - FFmpeg、Node.js 22 以上、Google Chrome
+- **Windows 一律讓 HyperFrames 用電腦上的 Chrome**：執行前確認環境變數 `HYPERFRAMES_BROWSER_PATH` 指向 `chrome.exe`，沒有就照設定指引設好。不要執行 `npx hyperframes browser ensure`。目的：它預設下載的無視窗版 Chrome 沒有數位簽章，可能被防毒當成木馬
 - 配音用的 edge-tts（中英文都用它），裝在獨立環境裡：
   - Mac：`~/.venvs/edge-tts/bin/python`
   - Windows：`%USERPROFILE%\.venvs\edge-tts\Scripts\python.exe`

@@ -27,6 +27,18 @@ Mac 用 `uname -s`，Windows 用 PowerShell 的 `$env:OS`。以下分兩欄寫�
 
 Windows 用 winget 裝完後，新開的終端機才會讀到新的 PATH；讀不到時請使用者重開 Claude Code 再繼續。
 
+### Windows：讓 HyperFrames 用電腦上的 Chrome
+
+目的：HyperFrames 預設會另外下載一個沒有數位簽章的無視窗版 Chrome，公司電腦的防毒可能把它當成木馬（2026-11-24 有電腦的防毒清除了其中的 `libGLESv2.dll`）。改用已安裝、有 Google 簽章的 Chrome，就不會下載它。**要在第一次執行 HyperFrames 之前設好**：
+
+1. 找出 `chrome.exe`，依序看 `$env:ProgramFiles`、`${env:ProgramFiles(x86)}`、`$env:LOCALAPPDATA` 底下的 `Google\Chrome\Application\chrome.exe`，路徑存成 `$chrome`
+2. 設成使用者環境變數，這個工作階段也同時設：
+   - `[Environment]::SetEnvironmentVariable('HYPERFRAMES_BROWSER_PATH', $chrome, 'User')`
+   - `$env:HYPERFRAMES_BROWSER_PATH = $chrome`
+3. 使用者之後重開 Claude，新的工作階段才會自動讀到；還沒重開時，每次執行 HyperFrames 的指令前都要先設 `$env:HYPERFRAMES_BROWSER_PATH`
+
+不要執行 `npx hyperframes browser ensure`，它會下載那個無視窗版 Chrome。防毒跳出警告時停下來，請使用者看偵測紀錄並通報資訊單位，不要幫忙還原檔案、加白名單或關防毒。
+
 ## 3. 配音環境（edge-tts）
 
 裝在獨立環境，不汙染系統的 Python：
@@ -47,7 +59,7 @@ Windows 用 winget 裝完後，新開的終端機才會讀到新的 PATH；讀�
 2. Remotion 的 skill 是選裝，先問使用者要不要：
    `npx -y skills add remotion-dev/skills -g -a claude-code -s '*' -y`
 3. 把本檔所在的 `ai-short-video` 資料夾整個複製到 `~/.claude/skills/ai-short-video`（Windows 是 `%USERPROFILE%\.claude\skills\ai-short-video`）。已經有同名資料夾時，先問使用者要不要覆蓋。
-4. 環境檢查：`npx -y hyperframes doctor --json`，看 FFmpeg、FFprobe、Chrome 三項是否 ok。Docker 沒開不影響本機渲染，可以忽略。
+4. 環境檢查：`npx -y hyperframes doctor --json`，看 FFmpeg、FFprobe、Chrome 三項是否 ok（指定用電腦上的 Chrome 時，Chrome 這項可能誤報不合格，以第 5 節的測試片能不能輸出為準）。Docker 沒開不影響本機渲染，可以忽略。
 
 ## 5. 測試片
 
