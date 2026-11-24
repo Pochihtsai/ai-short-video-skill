@@ -17,7 +17,9 @@ spec.json 欄位：
                scene 模板另外要 "scene"：這一幕的畫面，欄位和字數上限見本說明最後一段
   ending       結尾句（畫面文字），可用 *字*；"ending_cue" 是台詞裡結尾句開頭的一段字
   lang         "zh" 或 "en"，預設 zh
-圖示名稱：Lucide 全套約 2,100 個，用 scripts/icon_search.py 以英文關鍵字找。
+  icon_set     圖示用哪一套（選填，預設 "lucide"），一支片只用一套："lucide"、"tabler"（線條）、"phosphor"（圓潤線條）、
+               "phosphor-duotone"（線條加淡色塊）、"phosphor-fill"（實心）、"material"（圓角線條）
+圖示名稱：每一套的名稱不同，用 scripts/icon_search.py --set <套名> 以英文關鍵字找。
 motion：draw 畫出來、pop 彈出、drop 掉下來、spin 旋轉、flip 翻牌、slide 滑進、pulse 心跳、wiggle 搖晃。
 每個 cue 要一字不差出現在 script.txt 裡，那個重點會在講到這段字時出現。
 字太長、重點太多時會直接停下來說明上限，請改內容，不要改模板。字數上限都以「中文字寬」算，英文字母約半個字。
@@ -55,7 +57,7 @@ STYLES = {
                   em="#6b5012", fill="#aa8421", on="#ffffff", card="rgba(255,255,255,.86)", edge="1.5px solid rgba(255,255,255,.95)",
                   shadow="inset 0 2px 0 rgba(255,255,255,.9), 0 2px 4px rgba(28,42,52,.05), 0 24px 60px -16px rgba(28,42,52,.18)",
                   cap_bg="rgba(255,255,255,.86)", cap_ink="#22303a", cap_edge="1.5px solid rgba(255,255,255,.95)", radius=28,
-                  glow1="rgba(222,164,18,.30)", glow2="rgba(18,128,172,.26)", chip_off="rgba(34,48,58,.08)", chip_off_ink="#46545e", alt="#2a7da1", bad="#d0553f"),
+                  glow1="rgba(222,164,18,.22)", glow2="rgba(18,128,172,.26)", chip_off="rgba(34,48,58,.08)", chip_off_ink="#46545e", alt="#2a7da1", bad="#d0553f"),
     "paper": dict(bg="#e9ecef", bgc="#e9ecef", ink="#22272c", ink2="#5f6870", em="#c63f20", fill="#e2502e", on="#ffffff",
                   card="#ffffff", edge="2px solid #d3d8dd", shadow="0 10px 28px rgba(34,39,44,.10)",
                   cap_bg="rgba(34,39,44,.88)", cap_ink="#ffffff", cap_edge="0 solid transparent", radius=22,
@@ -77,24 +79,41 @@ LIMITS = {
 }
 
 
-_LU = json.load(open(os.path.join(HERE, "..", "references", "quick", "lucide.json"), encoding="utf-8"))  # Lucide 全套，ISC 授權（references/quick/LICENSE_lucide.txt）
-LUCIDE, ALIASES = _LU["icons"], _LU.get("aliases", {})  # ALIASES：舊版名稱對到新版
+ICON_DIR = os.path.join(HERE, "..", "references", "quick")
+ICON_SETS = ["lucide", "tabler", "phosphor", "phosphor-duotone", "phosphor-fill", "material"]  # 授權在 references/quick/LICENSE_*.txt
+ICON_CREDIT = {"lucide": "Lucide · ISC", "tabler": "Tabler Icons · MIT © 2020-2024 Paweł Kuna", "phosphor": "Phosphor Icons · MIT © 2023 Phosphor Icons", "material": "Material Symbols · Apache-2.0 Google"}
+ICON_CREDIT.update({f"phosphor-{w}": ICON_CREDIT["phosphor"] for w in ("duotone", "fill")})
+SEARCH_ICON = {"phosphor": "magnifying-glass", "phosphor-duotone": "magnifying-glass", "phosphor-fill": "magnifying-glass"}  # 放大鏡在各套的名稱，沒列的叫 search
+
+
+def load_set(name):
+    d = json.load(open(os.path.join(ICON_DIR, name + ".json"), encoding="utf-8"))
+    return dict(icons=d["icons"], aliases=d.get("aliases", {}), mode=d.get("mode", "stroke"), box=d.get("viewBox", "0 0 24 24"))
+
+
+LUCIDE = load_set("lucide")
+SET = LUCIDE  # 內容圖示用的那一套，讀完 spec.json 後換成 icon_set 指定的；勾、叉這種介面小圖一律用 Lucide
 SHAPES = r"<(path|circle|line|rect|polyline|polygon|ellipse)\b([^>]*?)/>"
 
 
-def icon(name, size, color, sw=2):
-    if ALIASES.get(name, name) in LUCIDE:
-        src = LUCIDE[ALIASES.get(name, name)]
-    else:
-        die(f"沒有「{name}」這個圖示：用 scripts/icon_search.py 以英文關鍵字找正確名稱")
+def icon(name, size, color, sw=2, ui=False):
+    st = LUCIDE if ui else SET
+    src = st["icons"].get(st["aliases"].get(name, name))
+    if src is None:
+        die(f"「{spec.get('icon_set', 'lucide')}」這套沒有「{name}」這個圖示：用 scripts/icon_search.py --set {spec.get('icon_set', 'lucide')} 以英文關鍵字找正確名稱")
+    if st["mode"] == "fill":
+        return f'<svg class="ico" viewBox="{st["box"]}" width="{size}" height="{size}" fill="{color}" style="display:block">{src}</svg>'
     parts = re.findall(SHAPES, src, re.S)
     inner = "".join("<" + tg + " " + " ".join(a.split()) + ' class="ln" pathLength="1" stroke-dasharray="1 1"/>' for tg, a in parts)
-    return (f'<svg class="ico" viewBox="0 0 24 24" width="{size}" height="{size}" fill="none" stroke="{color}" stroke-width="{sw}" '
+    return (f'<svg class="ico" viewBox="{st["box"]}" width="{size}" height="{size}" fill="none" stroke="{color}" stroke-width="{sw}" '
             f'stroke-linecap="round" stroke-linejoin="round" style="display:block; overflow:visible">{inner}</svg>')
 
 
-def draw(sel, t):  # 線條一筆一筆畫出來；畫之前整個圖示先藏起來，否則線條端點的圓頭會先露出小點
-    return f'tl.set("{sel} .ico", {{ opacity: 1 }}, {max(t, 0):.2f}); tl.fromTo("{sel} .ln", {{ attr: {{ "stroke-dashoffset": 1 }} }}, {{ attr: {{ "stroke-dashoffset": 0 }}, duration: 0.5, stagger: 0.06, ease: "power2.inOut" }}, {max(t, 0):.2f});'
+def draw(sel, t, ui=False):  # 線條一筆一筆畫出來；畫之前整個圖示先藏起來，否則線條端點的圓頭會先露出小點。填色的圖示沒有線條可畫，改成由左往右揭開
+    t = max(t, 0)
+    if not ui and SET["mode"] == "fill":
+        return f'tl.set("{sel} .ico", {{ opacity: 1 }}, {t:.2f}); tl.fromTo("{sel} .ico", {{ clipPath: "inset(0% 100% 0% 0%)" }}, {{ clipPath: "inset(0% 0% 0% 0%)", duration: 0.5, ease: "power2.inOut" }}, {t:.2f});'
+    return f'tl.set("{sel} .ico", {{ opacity: 1 }}, {t:.2f}); tl.fromTo("{sel} .ln", {{ attr: {{ "stroke-dashoffset": 1 }} }}, {{ attr: {{ "stroke-dashoffset": 0 }}, duration: 0.5, stagger: 0.06, ease: "power2.inOut" }}, {t:.2f});'
 
 
 def burst_svg(color):  # Motion Prompt #003 Burst：圖示畫完時周圍迸出幾道短線
@@ -106,12 +125,12 @@ def burst_svg(color):  # Motion Prompt #003 Burst：圖示畫完時周圍迸出�
 
 def icon_block(ident, name, size, color, sw=1.6):  # 圖示＋爆點，外層可以整個移動、浮動
     return (f'<div id="{ident}" style="position:relative; width:{size}px; height:{size}px; flex:none;">{icon(name, size, color, sw)}'
-            f'<div class="burst" style="position:absolute; left:{-size * 0.2:.0f}px; top:{-size * 0.2:.0f}px; width:{size * 1.4:.0f}px; height:{size * 1.4:.0f}px; opacity:0;">{burst_svg(color)}</div></div>')
+            f'<div class="burst" style="position:absolute; left:{-size * 0.12:.0f}px; top:{-size * 0.12:.0f}px; width:{size * 1.24:.0f}px; height:{size * 1.24:.0f}px; opacity:0;">{burst_svg(color)}</div></div>')
 
 
 def burst(sel, t):
     return (f'tl.fromTo("{sel} .burst", {{ opacity: 0, scale: 0.7 }}, {{ opacity: 1, scale: 1, duration: 0.12, ease: "power1.out" }}, {t:.2f}); '
-            f'tl.to("{sel} .burst", {{ opacity: 0, scale: 1.2, duration: 0.35, ease: "power1.out" }}, {t + 0.12:.2f});')
+            f'tl.to("{sel} .burst", {{ opacity: 0, scale: 1.1, duration: 0.35, ease: "power1.out" }}, {t + 0.12:.2f});')
 
 
 def bob(sel, t0, t1):  # 停留時輕輕上下浮動，畫面不會整段靜止
@@ -237,7 +256,11 @@ if not S:
     die('style 要是 "glass"、"paper" 或 "dark"')
 if spec.get("music") not in MUSIC:
     die('music 要是 "smile"、"closeup"、"clouds" 或 "september"')
+if spec.get("icon_set", "lucide") not in ICON_SETS:
+    die(f"icon_set「{spec['icon_set']}」不在選單裡，只能用：" + "、".join(ICON_SETS))
+SET = load_set(spec.get("icon_set", "lucide"))
 lang = spec.get("lang", "zh")
+TLH = 1.3 if lang == "zh" else 1.2  # 標題行高：中文字是方的，兩行以上要鬆一點才不會黏在一起
 L = LIMITS[(T, O)]
 items = spec["items"]
 if not L["n"][0] <= len(items) <= L["n"][1]:
@@ -380,13 +403,16 @@ caps = [c for c in caps if not (c["start"] >= te - 0.05 and sent_id(c) in drop_i
 json.dump(caps, open("captions.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 
 # ---------- 版面 ----------
+# 中文片一律用思源黑體（references/fonts，開放字型授權），Mac、Windows 做出來一樣；純英文片用 HyperFrames 內建的 Inter
+FONT = '"TC", sans-serif' if lang == "zh" else '"Inter", "TC", sans-serif'
+os.makedirs("assets/fonts", exist_ok=True)
+shutil.copy(os.path.join(HERE, "..", "references", "fonts", "NotoSansTC.ttf"), "assets/fonts/NotoSansTC.ttf")
 R = S["radius"]
 css_common = f"""
-      @font-face {{ font-family: "TC"; src: local("PingFangTC-Medium"), local("PingFang TC Medium"), local("Microsoft JhengHei"), local("微軟正黑體"); font-weight: 500; }}
-      @font-face {{ font-family: "TC"; src: local("PingFangTC-Semibold"), local("PingFang TC Semibold"), local("Microsoft JhengHei Bold"), local("Microsoft JhengHei"); font-weight: 600; }}
+      @font-face {{ font-family: "TC"; src: url("assets/fonts/NotoSansTC.ttf"); font-weight: 100 900; ascent-override: 108%; descent-override: 32%; }}
       * {{ margin: 0; padding: 0; box-sizing: border-box; }}
       html, body {{ width: {W}px; height: {H}px; overflow: hidden; background: {S["bgc"]}; }}
-      #root {{ position: relative; width: {W}px; height: {H}px; overflow: hidden; font-family: "Inter", "TC", sans-serif; color: {S["ink"]}; background: {S["bg"]}; }}
+      #root {{ position: relative; width: {W}px; height: {H}px; overflow: hidden; font-family: {FONT}; font-weight: 500; color: {S["ink"]}; background: {S["bg"]}; }}
       #world {{ position: absolute; inset: 0; transform-origin: {W // 2 if O == "h" else 450}px {H // 2 if O == "h" else 700}px; }}
       .ico {{ opacity: 0; }}
       em {{ font-style: normal; font-weight: 600; color: {S["em"]}; }}
@@ -395,25 +421,25 @@ css_common = f"""
       .num {{ flex: none; width: 64px; height: 64px; border-radius: 32px; background: {S["fill"]}; color: {S["on"]}; font-weight: 600; font-size: 36px; line-height: 64px; text-align: center; margin: 0 26px 0 28px; }}
       .card span {{ font-weight: 500; white-space: nowrap; }}
       .row .num {{ width: 44px; height: 44px; border-radius: 22px; font-size: 28px; line-height: 44px; margin: 0 16px 0 10px; }}
-      .end {{ position: absolute; text-align: center; font-weight: 600; line-height: 1.25; text-wrap: balance; opacity: 0; }}
+      .end {{ position: absolute; text-align: center; font-weight: 600; line-height: 1.3; text-wrap: balance; opacity: 0; }}
       #title, #head, .exp {{ text-wrap: balance; }}
       .scn {{ position: absolute; opacity: 0; }}
       .msc svg {{ display: block; overflow: visible; filter: drop-shadow(0 10px 16px rgba(28,42,52,.16)); }}
-      .bub {{ position: relative; padding: 12px 28px; border-radius: 28px; background: {S["card"]}; border: {S["edge"]}; box-shadow: {S["shadow"]}; font-weight: 600; white-space: nowrap; opacity: 0; }}
+      .bub {{ position: relative; padding: 0.45em 0.8em; border-radius: 28px; background: {S["card"]}; border: {S["edge"]}; box-shadow: {S["shadow"]}; font-weight: 600; white-space: nowrap; opacity: 0; }}
       .badge {{ position: absolute; top: -24px; right: -24px; width: 84px; height: 84px; border-radius: 42px; display: flex; align-items: center; justify-content: center; opacity: 0; box-shadow: 0 8px 20px -6px rgba(28,42,52,.35); }}
       .dot {{ display: block; width: 16px; height: 16px; border-radius: 8px; background: {S["chip_off"]}; }}
       #fade {{ position: absolute; inset: 0; background: {S["bgc"]}; opacity: 0; }}
       #captions {{ position: absolute; inset: 0; }}
       .cap {{ position: absolute; text-align: center; opacity: 0; }}
-      .cap span {{ display: inline-block; padding: 10px 28px; border-radius: 18px; background: {S["cap_bg"]}; color: {S["cap_ink"]}; border: {S["cap_edge"]}; font-weight: 500; line-height: 1.3; white-space: nowrap; }}
-      .chip {{ display: inline-block; margin: 0 8px; padding: 0 26px; height: 70px; line-height: 70px; border-radius: 35px; font-weight: 600; font-size: 40px; background: {S["chip_off"]}; color: {S["chip_off_ink"]}; }}
+      .cap span {{ display: inline-block; padding: {"16px 40px" if O == "h" else "14px 36px"}; border-radius: 18px; background: {S["cap_bg"]}; color: {S["cap_ink"]}; border: {S["cap_edge"]}; font-weight: 500; line-height: 1.25; white-space: nowrap; }}
+      .chip {{ display: inline-block; margin: 0 12px; padding: 0 26px; height: 70px; line-height: 70px; border-radius: 35px; font-weight: 600; font-size: 40px; background: {S["chip_off"]}; color: {S["chip_off_ink"]}; }}
 """
 if O == "h":
     css_common += """      .cap { left: 360px; width: 1200px; top: 850px; } .cap span { font-size: 48px; max-width: 1200px; }
       .chip { height: 80px; line-height: 80px; border-radius: 40px; font-size: 48px; padding: 0 30px; }\n"""
 else:
-    css_common += """      .cap { left: 120px; width: 660px; top: 1163px; } .cap span { font-size: 46px; max-width: 660px; }
-      .chip { margin: 0 5px 10px; padding: 0 20px; height: 56px; line-height: 56px; border-radius: 28px; font-size: 32px; }\n"""
+    css_common += """      .cap { left: 120px; width: 660px; top: 1152px; } .cap span { font-size: 46px; max-width: 660px; }
+      .chip { margin: 0 8px 14px; padding: 0 20px; height: 56px; line-height: 56px; border-radius: 28px; font-size: 32px; }\n"""
 
 glows = ""
 if S["glow1"]:
@@ -442,23 +468,23 @@ if T == "stack":
     def nlines(txt, per):
         return len(txt.split("|")) if "|" in txt else max(1, math.ceil(vis(txt) / per))
     if O == "h":
-        body.append(f'<div id="title" style="position:absolute; left:192px; top:140px; width:720px; font-size:88px; font-weight:500; line-height:1.2;">{em(spec["title"])}</div>')
-        tb = 140 + nlines(spec["title"], 8) * 88 * 1.2
-        sx, sw_, isz, spx = 950, 778, 380, 84
-        itop = 120 + (830 - 120 - (isz + 30 + spx * 1.2)) / 2
-        ttop = itop + isz + 30
-        lx, lw, rgap = 192, 680, 12
+        body.append(f'<div id="title" style="position:absolute; left:192px; top:140px; width:720px; font-size:88px; font-weight:500; line-height:{TLH};">{em(spec["title"])}</div>')
+        tb = 140 + nlines(spec["title"], 8) * 88 * TLH
+        sx, sw_, isz, spx = 950, 778, 350, 84
+        itop = 120 + (830 - 120 - (isz + 56 + spx * 1.2)) / 2
+        ttop = itop + isz + 56
+        lx, lw, rgap = 192, 680, 16
         ltop = tb + 44
         rh = min(76, (830 - ltop - rgap * (n - 1)) / n)
     else:
-        body.append(f'<div id="title" style="position:absolute; left:120px; top:312px; width:660px; text-align:center; font-size:84px; font-weight:500; line-height:1.15;">{em(spec["title"])}</div>')
-        tb = 312 + nlines(spec["title"], 7) * 84 * 1.15
-        sx, sw_, isz, spx = 120, 660, 260, 52
-        itop = tb + 30
-        ttop = itop + isz + 18
-        lx, lw, rgap = 120, 660, 8
-        ltop = ttop + spx * 1.2 + 22
-        rh = min(62, (1150 - ltop - rgap * (n - 1)) / n)
+        body.append(f'<div id="title" style="position:absolute; left:120px; top:312px; width:660px; text-align:center; font-size:80px; font-weight:500; line-height:{TLH};">{em(spec["title"])}</div>')
+        tb = 312 + nlines(spec["title"], 7) * 80 * TLH
+        sx, sw_, isz, spx = 120, 660, 200, 52
+        itop = tb + 28
+        ttop = itop + isz + 22
+        lx, lw, rgap = 120, 660, 12
+        ltop = ttop + spx * 1.2 + 28
+        rh = min(62, (1116 - ltop - rgap * (n - 1)) / n)
     rpx = int(max(28, min(44 if O == "h" else 36, rh * 0.58)))
     icx = sx + (sw_ - isz) / 2
     scx, scy = icx + isz / 2, itop + isz / 2
@@ -495,7 +521,7 @@ if T == "stack":
     ew_, emax, elines, a0, a1, ecx = (1400, 96, 2, 120, 830, 960) if O == "h" else (660, 84, 4, 288, 1150, 450)
     epx = fit(spec["ending"], ew_, emax, elines)
     nl = len(spec["ending"].split("|")) if "|" in spec["ending"] else math.ceil(vis(spec["ending"]) * epx / (ew_ * 0.96))
-    gh = (210 if TI else 0) + nl * epx * 1.25
+    gh = (210 if TI else 0) + nl * epx * 1.3
     gtop = a0 + (a1 - a0 - gh) / 2
     etop = gtop + (210 if TI else 0)
     body.append(f'<div class="end" id="end" style="left:{ecx - ew_ // 2}px; width:{ew_}px; top:{etop:.0f}px; font-size:{epx}px;">{em(spec["ending"])}</div>')
@@ -505,17 +531,17 @@ if T == "stack":
 elif T == "scene":
     # 每個重點一幕畫面：開場大標題＋主角 → 標題縮成頁首、旁邊小圓點標進度 → 一幕一幕換 → 結尾主角＋結尾句
     if O == "v":
-        sx, sy, sw_, sh_, ty, tpx, msz, isz, lab = 120, 410, 660, 560, 995, 52, 230, 300, 40
+        sx, sy, sw_, sh_, ty, tpx, msz, isz, lab = 120, 410, 660, 560, 1000, 52, 230, 300, 40
     else:
-        sx, sy, sw_, sh_, ty, tpx, msz, isz, lab = 192, 205, 1536, 500, 728, 64, 300, 340, 50
+        sx, sy, sw_, sh_, ty, tpx, msz, isz, lab = 192, 200, 1536, 490, 712, 64, 300, 340, 50
     plain = spec["title"].replace("|", " ")
     body.insert(0, mascot_defs(S))
     # 開場
     if O == "v":
-        body.append(f'<div id="title" style="position:absolute; left:120px; top:330px; width:660px; text-align:center; font-size:84px; font-weight:500; line-height:1.15;">{em(spec["title"])}</div>')
+        body.append(f'<div id="title" style="position:absolute; left:120px; top:330px; width:660px; text-align:center; font-size:84px; font-weight:500; line-height:{TLH};">{em(spec["title"])}</div>')
         ogt, ogh = 640, 340
     else:
-        body.append(f'<div id="title" style="position:absolute; left:192px; top:170px; width:1536px; text-align:center; font-size:96px; font-weight:500; line-height:1.2;">{em(spec["title"])}</div>')
+        body.append(f'<div id="title" style="position:absolute; left:192px; top:170px; width:1536px; text-align:center; font-size:96px; font-weight:500; line-height:{TLH};">{em(spec["title"])}</div>')
         ogt, ogh = 480, 360
     op = icon_block("hib", TI, msz * 0.8, S["fill"]) if TI else ""
     body.append(f'<div id="og" style="position:absolute; left:{sx}px; top:{ogt}px; width:{sw_}px; height:{ogh}px; display:flex; align-items:center; justify-content:center; gap:{int(msz * 0.25)}px;">{mascot("om", "w", msz)}{op}</div>')
@@ -560,37 +586,37 @@ elif T == "scene":
                 j_.append(pop_in(f"#b{k}", t0 + 0.65))
             j_.append(bob(f"#m{k}", t0 + 0.75, hold))
         elif sc == "split":
-            gap = 28 if O == "v" else 70
+            gap = 44 if O == "v" else 80
             pw, ph = (sw_ - gap) / 2, (470 if O == "v" else 430)
             ic2 = min(pw * 0.55, ph * 0.48)
             def panel(side, d, col, tc, bg, glyph):
                 return (f'<div class="card pan" id="{side}{k}" style="position:relative; width:{pw:.0f}px; height:{ph}px; flex-direction:column; justify-content:center; gap:26px;">'
                         f'{icon_block(f"{side}i{k}", d["icon"], ic2, col)}<div style="font-size:{lab}px; font-weight:600; color:{tc}; white-space:nowrap;">{em(d["label"])}</div>'
-                        f'<div class="badge" id="{side}x{k}" style="background:{bg}">{icon(glyph, 46, "#ffffff", 3.2)}</div></div>')
+                        f'<div class="badge" id="{side}x{k}" style="background:{bg}">{icon(glyph, 46, "#ffffff", 3.2, ui=True)}</div></div>')
             h_ = (f'<div style="{full} gap:{gap}px;">' + panel("pb", it["bad"], S["ink2"], S["ink2"], S["bad"], "x")
                   + panel("pg", it["good"], S["fill"], S["ink"], S["fill"], "check") + "</div>")
             b = beat(t0, dur, 2.4)
             j_.append(f'tl.fromTo("#pb{k}", {{ opacity: 0, x: -40 }}, {{ opacity: 1, x: 0, duration: 0.4, ease: "power3.out" }}, {t0:.2f});')
             j_ += icon_in(f"#pbi{k}", it["bad"].get("motion"), t0 + 0.1, b(1.0))
-            j_ += [pop_in(f"#pbx{k}", b(0.6)), draw(f"#pbx{k}", b(0.62))]
-            j_.append(f'tl.to("#pb{k}", {{ opacity: 0.5, scale: 0.95, duration: 0.3, ease: "power2.out" }}, {b(1.2):.2f});')
+            j_ += [pop_in(f"#pbx{k}", b(0.6)), draw(f"#pbx{k}", b(0.62), ui=True)]
+            j_.append(f'tl.to("#pb{k}", {{ opacity: 0.8, scale: 0.92, duration: 0.3, ease: "power2.out" }}, {b(1.2):.2f});')
             j_.append(f'tl.fromTo("#pg{k}", {{ opacity: 0, x: 40 }}, {{ opacity: 1, x: 0, duration: 0.4, ease: "power3.out" }}, {b(1.2):.2f});')
             j_ += icon_in(f"#pgi{k}", it["good"].get("motion") or "pop", b(1.3), hold)
-            j_ += [pop_in(f"#pgx{k}", b(1.8)), draw(f"#pgx{k}", b(1.82))]
+            j_ += [pop_in(f"#pgx{k}", b(1.8)), draw(f"#pgx{k}", b(1.82), ui=True)]
         elif sc == "tree":
             br = it["branches"]
             m_ = len(br)
             slot = sw_ / m_
-            L = 170 if O == "v" else 190
+            L = 170 if O == "v" else 180
             C = min(140 if O == "v" else 160, slot * 0.8)
             lf = 34 if O == "v" else 44
-            ct = sh_ - C - lf * 1.6
+            ct = sh_ - C - lf * 1.6 - (48 if O == "v" else 24)  # 分支名稱和底下那行字之間要留一段距離
             xs_ = [slot * (i + 0.5) for i in range(m_)]
             lines = "".join(f'<line class="tl{k}" x1="{sw_ / 2:.0f}" y1="{L * 0.92:.0f}" x2="{cx:.0f}" y2="{ct + C * 0.1:.0f}" pathLength="1" stroke-dasharray="1 1"/>' for cx in xs_)
             h_ = (f'<svg width="{sw_}" height="{sh_}" style="position:absolute; left:0; top:0; overflow:visible" fill="none" stroke="{S["fill"]}" stroke-width="4" stroke-linecap="round" stroke-opacity=".55">{lines}</svg>'
                   + mascot(f"m{k}", "l", L, f"position:absolute; left:{(sw_ - L) / 2:.0f}px; top:0;")
                   + "".join(mascot(f"c{k}_{i}", "w", C, f"position:absolute; left:{cx - C / 2:.0f}px; top:{ct:.0f}px;") for i, cx in enumerate(xs_))
-                  + "".join(f'<div class="lb" id="l{k}_{i}" style="position:absolute; left:{cx - slot / 2:.0f}px; top:{ct + C + 10:.0f}px; width:{slot:.0f}px; text-align:center; font-size:{lf}px; font-weight:600; white-space:nowrap; opacity:0;">{em(x)}</div>' for i, (cx, x) in enumerate(zip(xs_, br))))
+                  + "".join(f'<div class="lb" id="l{k}_{i}" style="position:absolute; left:{cx - slot / 2:.0f}px; top:{ct + C + 18:.0f}px; width:{slot:.0f}px; text-align:center; font-size:{lf}px; font-weight:600; white-space:nowrap; opacity:0;">{em(x)}</div>' for i, (cx, x) in enumerate(zip(xs_, br))))
             b = beat(t0, dur, 1.2)
             j_.append(hop(f"#m{k}", t0))
             j_.append(f'tl.fromTo(".tl{k}", {{ attr: {{ "stroke-dashoffset": 1 }} }}, {{ attr: {{ "stroke-dashoffset": 0 }}, duration: 0.4, stagger: 0.08, ease: "power2.inOut" }}, {b(0.35):.2f});')
@@ -600,14 +626,14 @@ elif T == "scene":
             j_.append(bob(f"#m{k}", t0 + 0.6, hold))
         elif sc == "card":
             rows = it["rows"]
-            cw = 600 if O == "v" else 860
-            hf, rf, cb, rg = (44, 40, 50, 22) if O == "v" else (52, 48, 58, 24)
+            cw = 640 if O == "v" else 880
+            hf, rf, cb, rg = (44, 40, 50, 26) if O == "v" else ((50, 44, 54, 26) if len(rows) < 4 else (44, 40, 50, 20))
             peek = mascot(f"m{k}", "w", 130, "position:absolute; right:-36px; top:-64px;") if O == "v" else ""
             side = mascot(f"m{k}", "w", 280) if O == "h" else ""
             rws = "".join(f'<div class="crow" id="r{k}_{j}" style="display:flex; align-items:center; gap:22px; font-size:{rf}px; font-weight:500; opacity:0;">'
-                          f'<div id="ck{k}_{j}" style="flex:none; width:{cb}px; height:{cb}px; border-radius:{cb // 2}px; border:3px solid {S["fill"]}; display:flex; align-items:center; justify-content:center;">{icon("check", cb * 0.62, S["fill"], 3)}</div>'
+                          f'<div id="ck{k}_{j}" style="flex:none; width:{cb}px; height:{cb}px; border-radius:{cb // 2}px; border:3px solid {S["fill"]}; display:flex; align-items:center; justify-content:center;">{icon("check", cb * 0.62, S["fill"], 3, ui=True)}</div>'
                           f'<span style="white-space:nowrap">{em(r_["text"] if isinstance(r_, dict) else r_)}</span></div>' for j, r_ in enumerate(rows))
-            h_ = (f'<div style="{full} gap:70px;">{side}<div class="card" id="cd{k}" style="position:relative; width:{cw}px; flex-direction:column; align-items:stretch; padding:36px 44px 40px; gap:{rg}px;">'
+            h_ = (f'<div style="{full} gap:70px;">{side}<div class="card" id="cd{k}" style="position:relative; width:{cw}px; flex-direction:column; align-items:stretch; padding:{"42px 52px" if O == "v" else "36px 56px"}; gap:{rg}px;">'
                   f'{peek}<div style="font-size:{hf}px; font-weight:600; color:{S["em"]}; white-space:nowrap;">{em(it["card_title"])}</div><div style="height:2px; background:{S["chip_off"]}"></div>{rws}</div></div>')
             j_.append(f'tl.fromTo("#cd{k}", {{ opacity: 0, y: 40 }}, {{ opacity: 1, y: 0, duration: 0.45, ease: "back.out(1.6)" }}, {t0:.2f});')
             j_.append(hop(f"#m{k}", t0 + 0.15))
@@ -615,7 +641,7 @@ elif T == "scene":
             for j, r_ in enumerate(rows):
                 rt = cue_time(r_["cue"], f"第 {k + 1} 個重點的清單項") if isinstance(r_, dict) and r_.get("cue") else t0 + 0.45 + j * step
                 j_.append(f'tl.fromTo("#r{k}_{j}", {{ opacity: 0, x: -20 }}, {{ opacity: 1, x: 0, duration: 0.3, ease: "power3.out" }}, {rt:.2f});')
-                j_.append(draw(f"#ck{k}_{j}", rt + 0.15))
+                j_.append(draw(f"#ck{k}_{j}", rt + 0.15, ui=True))
             j_.append(bob(f"#m{k}", t0 + 0.8, hold))
         elif sc == "check":
             mk = it.get("marks", "oox")
@@ -625,9 +651,9 @@ elif T == "scene":
             cards = "".join(f'<div class="card" id="cc{k}_{i}" style="position:relative; width:{cw}px; height:{ch}px; flex-direction:column; align-items:flex-start; justify-content:center; gap:{ch * 0.12:.0f}px; padding:0 {cw * 0.14:.0f}px;">'
                             + "".join(f'<i style="display:block; height:{ch * 0.08:.0f}px; width:{w}%; border-radius:6px; background:{S["fill"] if w == 55 else S["chip_off"]}"></i>' for w in (55, 100, 80))
                             + f'<div id="cs{k}_{i}" style="position:absolute; left:50%; top:50%; width:{d_:.0f}px; height:{d_:.0f}px; margin:-{d_ / 2:.0f}px 0 0 -{d_ / 2:.0f}px; border-radius:50%; background:{S["fill"] if c == "o" else S["bad"]}; display:flex; align-items:center; justify-content:center; opacity:0;">'
-                            f'{icon("check" if c == "o" else "x", d_ * 0.56, "#ffffff", 3.2)}</div></div>' for i, c in enumerate(mk))
+                            f'{icon("check" if c == "o" else "x", d_ * 0.56, "#ffffff", 3.2, ui=True)}</div></div>' for i, c in enumerate(mk))
             row = f'<div style="display:flex; gap:{24 if O == "v" else 30}px;">{cards}</div>'
-            rev = f'<div style="display:flex; align-items:center; gap:12px;">{mascot(f"a{k}", "a", ms)}{icon_block(f"q{k}", "search", ms * 0.6, S["alt"])}</div>'
+            rev = f'<div style="display:flex; align-items:center; gap:12px;">{mascot(f"a{k}", "a", ms)}{icon_block(f"q{k}", SEARCH_ICON.get(spec.get("icon_set"), "search"), ms * 0.6, S["alt"])}</div>'
             dirn = "column" if O == "v" else "row"
             h_ = f'<div style="{full} flex-direction:{dirn}; gap:{40 if O == "v" else 80}px;">{mascot(f"m{k}", "w", ms)}{row}{rev}</div>'
             need = 1.1 + len(mk) * 0.32 + 0.3
@@ -674,7 +700,7 @@ elif T == "scene":
     epx = fit(spec["ending"], ew_, emax, elines)
     nl = len(spec["ending"].split("|")) if "|" in spec["ending"] else math.ceil(vis(spec["ending"]) * epx / (ew_ * 0.96))
     ems = 200 if O == "v" else 180
-    gh = ems + 40 + nl * epx * 1.25
+    gh = ems + 40 + nl * epx * 1.3
     gtop = a0 + (a1 - a0 - gh) / 2
     body.append(mascot("em_", "l", ems, f"position:absolute; left:{ecx - ems / 2:.0f}px; top:{gtop:.0f}px; opacity:0;"))
     body.append(f'<div class="end" id="end" style="left:{ecx - ew_ // 2}px; width:{ew_}px; top:{gtop + ems + 40:.0f}px; font-size:{epx}px;">{em(spec["ending"])}</div>')
@@ -689,32 +715,32 @@ else:  # big
         if TI:
             body.append(f'<div id="hico" style="position:absolute; left:830px; top:250px;">{icon_block("hib", TI, 260, S["fill"], 1.5)}</div>')
         body.append(f'<div id="head" style="position:absolute; left:240px; top:140px; width:1440px; font-size:60px; font-weight:500; color:{S["ink2"]}; opacity:0;">{em(spec["title"])}</div>')
-        hx, hw, hy, hh = 240, 680, 245, 480
+        hx, hw, hy, hh = 240, 680, 235, 440
         ex, ew, ey = 980, 748, 490
         epx_item = 64
-        chips_y = 750
+        chips_y = 706
     else:
-        body.append(f'<div id="title" style="position:absolute; left:120px; top:312px; width:660px; text-align:center; font-size:84px; font-weight:500; line-height:1.15;">{em(spec["title"])}</div>')
+        body.append(f'<div id="title" style="position:absolute; left:120px; top:312px; width:660px; text-align:center; font-size:80px; font-weight:500; line-height:{TLH};">{em(spec["title"])}</div>')
         if TI:
             body.append(f'<div id="hico" style="position:absolute; left:290px; top:620px;">{icon_block("hib", TI, 320, S["fill"], 1.5)}</div>')
-        hx, hw, hy, hh = 160, 580, 690, 260  # 寬度留給壓扁變寬時不出安全範圍； 直式：標題 → 進度列（最多兩行）→ 大字 → 說明
-        ex, ew, ey = 120, 660, 980
+        hx, hw, hy, hh = 160, 580, 705, 250  # 寬度留給壓扁變寬時不出安全範圍； 直式：標題 → 進度列（最多兩行）→ 大字 → 說明
+        ex, ew, ey = 120, 660, 985
         epx_item = 52
-        chips_y = 545
+        chips_y = 552
     for k, it in enumerate(items):
         kw = vis(it["key"]) if not re.search(r"[A-Za-z0-9]", it["key"]) else len(it["key"]) * 0.62
-        kpx = int(min(340 if O == "h" else 260, hw * 0.92 / max(kw, 0.8)))
+        kpx = int(min(340 if O == "h" else 240, hw * 0.92 / max(kw, 0.8)))
         body.append(f'<div class="hero" id="k{k}" style="position:absolute; left:{hx}px; top:{hy}px; width:{hw}px; height:{hh}px; display:flex; align-items:center; justify-content:{"flex-end" if O == "h" else "center"}; '
                     f'font-size:{kpx}px; font-weight:600; color:{S["em"]}; line-height:1; opacity:0;">{em(it["key"])}</div>')
         if O == "h":  # 說明文字和大字垂直置中對齊，左右排成一組
-            ic = f'<div style="margin-bottom:22px">{icon_block(f"eb{k}", it["icon"], 220, S["fill"])}</div>' if it.get("icon") else ""
+            ic = f'<div style="margin-bottom:38px">{icon_block(f"eb{k}", it["icon"], 180, S["fill"])}</div>' if it.get("icon") else ""
             body.append(f'<div class="exp" id="e{k}" style="position:absolute; left:{ex}px; top:{hy}px; width:{ew}px; height:{hh}px; display:flex; flex-direction:column; justify-content:center; font-size:{epx_item}px; font-weight:500; line-height:1.25; opacity:0;">{ic}<div>{em(it["text"])}</div></div>')
         else:
             ic = icon_block(f"eb{k}", it["icon"], 130, S["fill"]) if it.get("icon") else ""
-            body.append(f'<div class="exp" id="e{k}" style="position:absolute; left:{ex}px; top:{ey}px; width:{ew}px; display:flex; justify-content:center; align-items:center; gap:18px; font-size:{epx_item}px; font-weight:500; line-height:1.25; opacity:0;">{ic}<div>{em(it["text"])}</div></div>')
+            body.append(f'<div class="exp" id="e{k}" style="position:absolute; left:{ex}px; top:{ey}px; width:{ew}px; display:flex; justify-content:center; align-items:center; gap:30px; font-size:{epx_item}px; font-weight:500; line-height:1.25; opacity:0;">{ic}<div>{em(it["text"])}</div></div>')
     chips = "".join(f'<span class="chip" id="c{k}">{em(key)}</span>' for k, key in enumerate(keys))
     cpx = 1536 if O == "h" else 660
-    cw_est = sum(vis(key) * (48 if O == "h" else 32) + (76 if O == "h" else 52) for key in keys)
+    cw_est = sum(vis(key) * (48 if O == "h" else 32) + (84 if O == "h" else 56) for key in keys)
     if cw_est > cpx * (1 if O == "h" else 1.9):
         die("key 加起來太長，進度列放不下：請縮短 key")
     cl = 192 if O == "h" else 120
@@ -764,7 +790,7 @@ cap_rows = "".join(f'\n        <div class="cap" data-s="{c["start"]}" data-e="{c
 page = f"""<!doctype html>
 <html lang="{'zh-Hant' if lang == 'zh' else 'en'}">
   <!-- 輕量模式產生（scripts/quick_build.py，模板 {T}、風格 {spec["style"]}）。要改內容請改 spec.json 再重跑，不要手改這份。
-       Motion Prompt #003、#010、#011 · MIT © 2026 Shohei Ohtaki；圖示 Lucide · ISC -->
+       Motion Prompt #003、#010、#011 · MIT © 2026 Shohei Ohtaki；圖示 {ICON_CREDIT[spec.get("icon_set", "lucide")]} -->
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width={W}, height={H}" />

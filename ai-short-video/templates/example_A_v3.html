@@ -10,27 +10,26 @@
     <meta name="viewport" content="width=1080, height=1920" />
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
     <style>
-      /* 中文字型：同一個 @font-face 列出 Mac 和 Windows 的字型（只能本機渲染） */
-      @font-face { font-family: "TC"; src: local("PingFangTC-Medium"), local("PingFang TC Medium"), local("Microsoft JhengHei"), local("微軟正黑體"); font-weight: 500; }
-      @font-face { font-family: "TC"; src: local("PingFangTC-Semibold"), local("PingFang TC Semibold"), local("Microsoft JhengHei Bold"), local("Microsoft JhengHei"); font-weight: 600; }
+      /* 中文字型：思源黑體，先把 references/fonts/NotoSansTC.ttf 複製到影片資料夾的 assets/fonts/ */
+      @font-face { font-family: "TC"; src: url("assets/fonts/NotoSansTC.ttf"); font-weight: 100 900; ascent-override: 108%; descent-override: 32%; }
       :root { --ink: #2a2f33; --ink-2: #5d656b; --line: #c9ced2; --accent: #c2512f; --bg: #f2f3f4; }
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--bg); }
-      #root { position: relative; width: 1080px; height: 1920px; font-family: "TC", sans-serif; color: var(--ink); background: var(--bg); }
+      #root { position: relative; width: 1080px; height: 1920px; font-family: "TC", sans-serif; font-weight: 500; color: var(--ink); background: var(--bg); }
       /* 鏡頭：把要一起推近、拉遠的內容包在 #world 裡，動 #world 的 scale／x／y；字幕放在 #world 外面，才不會跟著動 */
       #world { position: absolute; inset: 0; transform-origin: 450px 312px; }  /* 原點放在標題頂端，推近時標題不會被推出安全範圍 */
       /* 直式構圖中心線 x=450；安全範圍 垂直 288–1248，水平 120–888（y≥840 時到 780） */
-      .title { position: absolute; left: 120px; width: 660px; top: 312px; text-align: center; font-size: 96px; font-weight: 500; line-height: 1.15; }
+      .title { position: absolute; left: 120px; width: 660px; top: 312px; text-align: center; font-size: 96px; font-weight: 500; line-height: 1.3; }
       .title em { font-style: normal; font-weight: 600; color: var(--accent); }
-      .box { position: absolute; top: 640px; width: 190px; height: 190px; border-radius: 24px; background: #fff; border: 3px solid var(--line); font-size: 36px; line-height: 184px; text-align: center; color: var(--ink-2); }
+      .box { position: absolute; top: 640px; width: 170px; height: 170px; border-radius: 24px; background: #fff; border: 3px solid var(--line); font-size: 36px; line-height: 164px; text-align: center; color: var(--ink-2); }
       .bar { position: absolute; left: 165px; top: 920px; width: 570px; height: 18px; border-radius: 9px; background: #e3e6e8; overflow: hidden; }
       .bar i { display: block; width: 100%; height: 100%; background: var(--accent); transform-origin: left center; }
-      .end { position: absolute; left: 120px; width: 660px; top: 600px; text-align: center; font-size: 104px; font-weight: 600; line-height: 1.2; }
+      .end { position: absolute; left: 120px; width: 660px; top: 600px; text-align: center; font-size: 104px; font-weight: 600; line-height: 1.3; }
       #fade { position: absolute; inset: 0; background: var(--bg); }
-      /* 字幕：left 120、寬 660、top 1163；中文 46px；一次一組 */
+      /* 字幕：left 120、寬 660、top 1152；中文 46px；一次一組 */
       #captions { position: absolute; inset: 0; }
-      .cap { position: absolute; left: 120px; width: 660px; top: 1163px; text-align: center; opacity: 0; visibility: hidden; }
-      .cap span { display: inline-block; max-width: 660px; padding: 10px 28px; border-radius: 16px; background: rgba(42, 47, 51, 0.86); color: #fff; font-size: 46px; font-weight: 500; line-height: 1.3; }
+      .cap { position: absolute; left: 120px; width: 660px; top: 1152px; text-align: center; opacity: 0; visibility: hidden; }
+      .cap span { display: inline-block; max-width: 660px; padding: 14px 36px; border-radius: 16px; background: rgba(42, 47, 51, 0.86); color: #fff; font-size: 46px; font-weight: 500; line-height: 1.25; }
     </style>
   </head>
   <body>
@@ -38,9 +37,9 @@
       <div id="world">
         <!-- 第一幕：標題第 0 格就看得到（第 0 格是平台與網頁的縮圖，不要留白） -->
         <div class="title" id="s1-title">寫法<em>範本</em></div>
-        <div class="box" id="b1" style="left: 165px">元素 1</div>
-        <div class="box" id="b2" style="left: 355px">元素 2</div>
-        <div class="box" id="b3" style="left: 545px">元素 3</div>
+        <div class="box" id="b1" style="left: 155px">元素 1</div>
+        <div class="box" id="b2" style="left: 365px">元素 2</div>
+        <div class="box" id="b3" style="left: 575px">元素 3</div>
         <div class="bar" id="s2-bar"><i id="s2-fill"></i></div>
         <!-- 結尾：拿掉進行中的元素，換成收尾版面 -->
         <div class="end" id="s3-end" style="opacity: 0">結尾核心句</div>

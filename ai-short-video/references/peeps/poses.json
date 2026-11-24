@@ -1,0 +1,457 @@
+{
+"ArmsCrossed": {
+"cat": "bust",
+"x": 42,
+"y": 65,
+"w": 799,
+"h": 1128
+},
+"BlazerBlackTee": {
+"cat": "bust",
+"x": 38,
+"y": 65,
+"w": 792,
+"h": 1108
+},
+"ButtonShirt": {
+"cat": "bust",
+"x": 24,
+"y": 65,
+"w": 792,
+"h": 1126
+},
+"Coffee": {
+"cat": "bust",
+"x": 24,
+"y": 65,
+"w": 784,
+"h": 1095
+},
+"Device": {
+"cat": "bust",
+"x": 48,
+"y": 65,
+"w": 747,
+"h": 1100
+},
+"DotJacket": {
+"cat": "bust",
+"x": 47,
+"y": 65,
+"w": 923,
+"h": 1093
+},
+"Dress": {
+"cat": "bust",
+"x": 16,
+"y": 65,
+"w": 786,
+"h": 1120
+},
+"Explaining": {
+"cat": "bust",
+"x": 46,
+"y": 65,
+"w": 722,
+"h": 1092
+},
+"FurJacket": {
+"cat": "bust",
+"x": 12,
+"y": 65,
+"w": 797,
+"h": 1123
+},
+"Gaming": {
+"cat": "bust",
+"x": 30,
+"y": 65,
+"w": 746,
+"h": 1103
+},
+"Geek": {
+"cat": "bust",
+"x": 19,
+"y": 65,
+"w": 1002,
+"h": 1104
+},
+"Hoodie": {
+"cat": "bust",
+"x": 2,
+"y": 65,
+"w": 813,
+"h": 1130
+},
+"Killer": {
+"cat": "bust",
+"x": 42,
+"y": 65,
+"w": 736,
+"h": 1093
+},
+"Paper": {
+"cat": "bust",
+"x": 35,
+"y": 65,
+"w": 772,
+"h": 1105
+},
+"PocketShirt": {
+"cat": "bust",
+"x": -237,
+"y": 65,
+"w": 1171,
+"h": 1098
+},
+"PointingUp": {
+"cat": "bust",
+"x": 31,
+"y": 65,
+"w": 872,
+"h": 1092
+},
+"PoloSweater": {
+"cat": "bust",
+"x": 9,
+"y": 65,
+"w": 788,
+"h": 1107
+},
+"Selena": {
+"cat": "bust",
+"x": -11,
+"y": 65,
+"w": 822,
+"h": 1119
+},
+"Shirt": {
+"cat": "bust",
+"x": 19,
+"y": 65,
+"w": 783,
+"h": 1100
+},
+"ShirtCoat": {
+"cat": "bust",
+"x": 37,
+"y": 65,
+"w": 770,
+"h": 1126
+},
+"ShirtFilled": {
+"cat": "bust",
+"x": 27,
+"y": 65,
+"w": 789,
+"h": 1113
+},
+"SportyShirt": {
+"cat": "bust",
+"x": 14,
+"y": 65,
+"w": 806,
+"h": 1115
+},
+"StripedShirt": {
+"cat": "bust",
+"x": 30,
+"y": 65,
+"w": 761,
+"h": 1099
+},
+"Sweater": {
+"cat": "bust",
+"x": 31,
+"y": 65,
+"w": 821,
+"h": 1126
+},
+"SweaterDots": {
+"cat": "bust",
+"x": 8,
+"y": 65,
+"w": 803,
+"h": 1127
+},
+"Thunder": {
+"cat": "bust",
+"x": 43,
+"y": 65,
+"w": 744,
+"h": 1113
+},
+"Turtleneck": {
+"cat": "bust",
+"x": 14,
+"y": 65,
+"w": 817,
+"h": 1120
+},
+"Whatever": {
+"cat": "bust",
+"x": -89,
+"y": 65,
+"w": 1165,
+"h": 1080
+},
+"Bike": {
+"cat": "sitting",
+"x": -1032,
+"y": 65,
+"w": 3320,
+"h": 3163
+},
+"ClosedLegBW": {
+"cat": "sitting",
+"x": -2,
+"y": 65,
+"w": 1347,
+"h": 1963
+},
+"ClosedLegWB": {
+"cat": "sitting",
+"x": -2,
+"y": 65,
+"w": 1347,
+"h": 1963
+},
+"CrossedLegs": {
+"cat": "sitting",
+"x": 89,
+"y": 65,
+"w": 1421,
+"h": 2240
+},
+"HandsBackBW": {
+"cat": "sitting",
+"x": -88,
+"y": 65,
+"w": 1258,
+"h": 1804
+},
+"HandsBackWB": {
+"cat": "sitting",
+"x": -88,
+"y": 65,
+"w": 1258,
+"h": 1804
+},
+"MediumBW": {
+"cat": "sitting",
+"x": -285,
+"y": 65,
+"w": 1322,
+"h": 1830
+},
+"MediumWB": {
+"cat": "sitting",
+"x": -285,
+"y": 65,
+"w": 1322,
+"h": 1830
+},
+"OneLegUpBW": {
+"cat": "sitting",
+"x": -72,
+"y": 65,
+"w": 1305,
+"h": 1917
+},
+"OneLegUpWB": {
+"cat": "sitting",
+"x": -72,
+"y": 65,
+"w": 1305,
+"h": 1917
+},
+"Wheelchair": {
+"cat": "sitting",
+"x": -158,
+"y": 65,
+"w": 1798,
+"h": 2357
+},
+"BlazerBW": {
+"cat": "standing",
+"x": -75,
+"y": 65,
+"w": 1046,
+"h": 2826
+},
+"BlazerPantsBW": {
+"cat": "standing",
+"x": -75,
+"y": 65,
+"w": 1046,
+"h": 2823
+},
+"BlazerPantsWB": {
+"cat": "standing",
+"x": -75,
+"y": 65,
+"w": 1046,
+"h": 2824
+},
+"BlazerWB": {
+"cat": "standing",
+"x": -75,
+"y": 65,
+"w": 1046,
+"h": 2828
+},
+"CrossedArmsBW": {
+"cat": "standing",
+"x": -211,
+"y": 65,
+"w": 1090,
+"h": 2869
+},
+"CrossedArmsWB": {
+"cat": "standing",
+"x": -199,
+"y": 65,
+"w": 1071,
+"h": 2868
+},
+"Doc": {
+"cat": "standing",
+"x": 3,
+"y": 65,
+"w": 942,
+"h": 2907
+},
+"DocProtectiveClothe": {
+"cat": "standing",
+"x": 3,
+"y": 65,
+"w": 932,
+"h": 2906
+},
+"DocStethoscope": {
+"cat": "standing",
+"x": 2,
+"y": 65,
+"w": 942,
+"h": 2906
+},
+"EasingBW": {
+"cat": "standing",
+"x": -190,
+"y": 65,
+"w": 1075,
+"h": 2881
+},
+"EasingWB": {
+"cat": "standing",
+"x": -190,
+"y": 65,
+"w": 1075,
+"h": 2881
+},
+"PointingFingerBW": {
+"cat": "standing",
+"x": -15,
+"y": 65,
+"w": 1300,
+"h": 2604
+},
+"PointingFingerWB": {
+"cat": "standing",
+"x": -16,
+"y": 65,
+"w": 1300,
+"h": 2604
+},
+"PolkaDots": {
+"cat": "standing",
+"x": 42,
+"y": 65,
+"w": 830,
+"h": 2834
+},
+"RestingBW": {
+"cat": "standing",
+"x": 7,
+"y": 65,
+"w": 1274,
+"h": 2877
+},
+"RestingWB": {
+"cat": "standing",
+"x": 7,
+"y": 65,
+"w": 1274,
+"h": 2876
+},
+"RoboDanceBW": {
+"cat": "standing",
+"x": -146,
+"y": 65,
+"w": 1350,
+"h": 2923
+},
+"RoboDanceOutline": {
+"cat": "standing",
+"x": -146,
+"y": 65,
+"w": 1350,
+"h": 2923
+},
+"RoboDanceWB": {
+"cat": "standing",
+"x": -146,
+"y": 65,
+"w": 1350,
+"h": 2924
+},
+"ShirtBW": {
+"cat": "standing",
+"x": 44,
+"y": 65,
+"w": 895,
+"h": 2930
+},
+"ShirtPantsBW": {
+"cat": "standing",
+"x": 44,
+"y": 65,
+"w": 894,
+"h": 2931
+},
+"ShirtPantsWB": {
+"cat": "standing",
+"x": 44,
+"y": 65,
+"w": 894,
+"h": 2931
+},
+"ShirtWB": {
+"cat": "standing",
+"x": 44,
+"y": 65,
+"w": 895,
+"h": 2930
+},
+"WalkingBW": {
+"cat": "standing",
+"x": -83,
+"y": 65,
+"w": 1035,
+"h": 2845
+},
+"WalkingFilled": {
+"cat": "standing",
+"x": -83,
+"y": 65,
+"w": 1035,
+"h": 2845
+},
+"WalkingWB": {
+"cat": "standing",
+"x": -83,
+"y": 65,
+"w": 1035,
+"h": 2845
+}
+}

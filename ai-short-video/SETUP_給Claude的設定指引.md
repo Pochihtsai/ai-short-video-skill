@@ -52,7 +52,7 @@ Windows 用 winget 裝完後，新開的終端機才會讀到新的 PATH；讀�
 ## 5. 測試片
 
 1. 在使用者桌面建立「影片/安裝測試」資料夾，執行 `npx -y hyperframes init . --skip-skills`。
-2. 把 index.html 改成 4 秒、1080×1920，畫面中間一行中文標題「安裝成功」，加一個淡入動畫；字型照 skill 的寫法用 `@font-face` 列出蘋方和微軟正黑體。
+2. 把 index.html 改成 4 秒、1080×1920，畫面中間一行中文標題「安裝成功」，加一個淡入動畫；字型照 skill「字型」的寫法，把 `references/fonts/NotoSansTC.ttf`（思源黑體）複製到專案的 `assets/fonts/` 再用 `@font-face` 載入。
 3. `npx hyperframes check --json`，要是 ok。
 4. `npx hyperframes render --quality draft -o 測試.mp4`。
 5. 用 ffprobe 確認 4 秒、1080×1920，抽一格畫面看中文字有沒有正確顯示（不是方塊或替代字型）。
