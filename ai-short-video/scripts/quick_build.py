@@ -34,7 +34,8 @@ scene 模板每個重點挑一種畫面（"scene" 欄位），主角是固定的
           card_title 和每一項各一行，直式最多 11 字、橫式 14 字
   check   驗收蓋章：做的人交出幾份成果，檢查的人逐張蓋 ✓ 或 ✕；"marks" 選填，用 o、x 寫，2–4 個，預設 "oox"
   number  大數字或大字：要 "key"（最多 2 個中文字或 4–5 個英文字母，例如 3、80%、快），純數字會從 0 跳上去；"icon" 選填
-  每一幕底下那行字（"text"）：直式最多 12 字、橫式 20 字
+  每一幕的排法由腳本決定，相鄰兩幕不重複：橫式 card、actor、icon、number 用左右分割輪流換邊，其他是字在下方或上方。文字用 | 標出適合斷行的地方，左右分割時照著斷、其他排法忽略
+  每一幕那句字（"text"）：直式最多 12 字、橫式 20 字
   結尾句（"ending"）不設上限，字多時自動縮小字級，建議 2 行內"""
 import html as _h, json, math, os, re, shutil, subprocess, sys, urllib.request
 if hasattr(sys.stdout, "reconfigure"):  # Windows 主控台預設 cp950，中文和全形符號會出錯；統一用 UTF-8
@@ -267,7 +268,7 @@ if not L["n"][0] <= len(items) <= L["n"][1]:
     die(f"這個模板放 {L['n'][0]}–{L['n'][1]} 個重點，現在有 {len(items)} 個。內容不合時改走一般流程。")
 check_len("標題", spec["title"], *L["title"])
 for i, it in enumerate(items, 1):
-    check_len(f"第 {i} 個重點", it["text"], *L["item"])
+    check_len(f"第 {i} 個重點", it["text"].replace("|", "") if T == "scene" else it["text"], *L["item"])
     if T == "big":
         if not it.get("key"):
             die(f"big 模板每個重點都要有 key（第 {i} 個沒有）")
@@ -553,11 +554,11 @@ elif T == "scene":
     js.append(f'tl.to(["#title", "#og"], {{ opacity: 0, y: -30, duration: 0.3, ease: "power2.in" }}, {ts[0] - 0.35:.2f});')
     # 頁首：標題縮小＋進度圓點
     if O == "v":
-        hpx = int(min(40, 640 / max(vis(plain), 1)))
+        hpx = int(min(36, 640 / max(vis(plain), 1)))
         body.append(f'<div id="head" style="position:absolute; left:120px; top:296px; width:660px; text-align:center; font-size:{hpx}px; font-weight:500; color:{S["ink2"]}; white-space:nowrap; opacity:0;">{em(plain)}</div>')
         body.append(f'<div id="dots" style="position:absolute; left:120px; top:356px; width:660px; display:flex; justify-content:center; gap:14px; opacity:0;">' + "".join(f'<i class="dot" id="d{k}"></i>' for k in range(n)) + "</div>")
     else:
-        hpx = int(min(46, 1100 / max(vis(plain), 1)))
+        hpx = int(min(38, 1100 / max(vis(plain), 1)))
         body.append(f'<div id="head" style="position:absolute; left:192px; top:112px; width:1200px; font-size:{hpx}px; font-weight:500; color:{S["ink2"]}; white-space:nowrap; opacity:0;">{em(plain)}</div>')
         body.append(f'<div id="dots" style="position:absolute; left:1400px; top:128px; width:328px; display:flex; justify-content:flex-end; gap:16px; opacity:0;">' + "".join(f'<i class="dot" id="d{k}"></i>' for k in range(n)) + "</div>")
     js.append(f'tl.fromTo(["#head", "#dots"], {{ opacity: 0, y: -12 }}, {{ opacity: 1, y: 0, duration: 0.35, ease: "power3.out" }}, {ts[0] - 0.1:.2f});')
@@ -566,9 +567,33 @@ elif T == "scene":
         f = min(1.0, max(0.35, (dur - 0.7) / need))
         return lambda off: t0 + off * f
 
+    # 每一幕的排法：相鄰兩幕不一樣。橫式的 card、actor、icon、number 放得進半邊，用左右分割並且輪流換邊；
+    # 其他要整個寬度的，字在畫面下方或上方輪流。直式只有上下兩種
+    lays, side = [], "left"
+    for it in items:
+        prev = lays[-1] if lays else ""
+        if O == "h" and it["scene"] in ("card", "actor", "icon", "number"):
+            lays.append(side)
+            side = "right" if side == "left" else "left"
+        else:
+            lays.append("above" if prev == "below" else "below")
+    # 進退場方向跟著排法走，不要每一幕都同一個方向：(字從哪裡進來, 整幕往哪裡離開)
+    MOVE = {"left": ("x: -36, y: 0", "x: -60"), "right": ("x: 36, y: 0", "x: 60"), "below": ("x: 0, y: 24", "y: -40"), "above": ("x: 0, y: -20", "y: 40")}
+
     shots = []
     for k, it in enumerate(items):
         t0 = ts[k]
+        lay = lays[k]
+        if O == "v":
+            sx, sw_, sh_, tpx = 120, 660, 560, 60
+            sy, ty = (410, 996) if lay == "below" else (540, 426)
+        elif lay in ("left", "right"):
+            sy, sh_, sw_, tpx = 190, 590, 880, 80
+            sx, tx, tw = (848, 192, 600) if lay == "left" else (192, 1128, 600)
+        else:
+            sx, sw_, sh_, tpx = 192, 1536, 490, 80
+            sy, ty = (200, 700) if lay == "below" else (324, 194)
+        nar = O == "v" or lay in ("left", "right")  # 畫面只有半邊寬，卡片旁邊放不下主角，主角改站在卡片角落
         t1 = ts[k + 1] if k + 1 < n else te
         dur, hold = t1 - t0, t1 - 0.4
         sc = it["scene"]
@@ -610,7 +635,7 @@ elif T == "scene":
             L = 170 if O == "v" else 180
             C = min(140 if O == "v" else 160, slot * 0.8)
             lf = 34 if O == "v" else 44
-            ct = sh_ - C - lf * 1.6 - (48 if O == "v" else 24)  # 分支名稱和底下那行字之間要留一段距離
+            ct = sh_ - C - lf * 1.6 - (48 if O == "v" else 40)  # 分支名稱和底下那行字之間要留一段距離
             xs_ = [slot * (i + 0.5) for i in range(m_)]
             lines = "".join(f'<line class="tl{k}" x1="{sw_ / 2:.0f}" y1="{L * 0.92:.0f}" x2="{cx:.0f}" y2="{ct + C * 0.1:.0f}" pathLength="1" stroke-dasharray="1 1"/>' for cx in xs_)
             h_ = (f'<svg width="{sw_}" height="{sh_}" style="position:absolute; left:0; top:0; overflow:visible" fill="none" stroke="{S["fill"]}" stroke-width="4" stroke-linecap="round" stroke-opacity=".55">{lines}</svg>'
@@ -626,14 +651,14 @@ elif T == "scene":
             j_.append(bob(f"#m{k}", t0 + 0.6, hold))
         elif sc == "card":
             rows = it["rows"]
-            cw = 640 if O == "v" else 880
+            cw = 640 if O == "v" else (780 if nar else 880)
             hf, rf, cb, rg = (44, 40, 50, 26) if O == "v" else ((50, 44, 54, 26) if len(rows) < 4 else (44, 40, 50, 20))
-            peek = mascot(f"m{k}", "w", 130, "position:absolute; right:-36px; top:-64px;") if O == "v" else ""
-            side = mascot(f"m{k}", "w", 280) if O == "h" else ""
+            peek = mascot(f"m{k}", "w", 130, "position:absolute; right:-36px; top:-48px;") if nar else ""
+            beside = "" if nar else mascot(f"m{k}", "w", 280)
             rws = "".join(f'<div class="crow" id="r{k}_{j}" style="display:flex; align-items:center; gap:22px; font-size:{rf}px; font-weight:500; opacity:0;">'
                           f'<div id="ck{k}_{j}" style="flex:none; width:{cb}px; height:{cb}px; border-radius:{cb // 2}px; border:3px solid {S["fill"]}; display:flex; align-items:center; justify-content:center;">{icon("check", cb * 0.62, S["fill"], 3, ui=True)}</div>'
                           f'<span style="white-space:nowrap">{em(r_["text"] if isinstance(r_, dict) else r_)}</span></div>' for j, r_ in enumerate(rows))
-            h_ = (f'<div style="{full} gap:70px;">{side}<div class="card" id="cd{k}" style="position:relative; width:{cw}px; flex-direction:column; align-items:stretch; padding:{"42px 52px" if O == "v" else "36px 56px"}; gap:{rg}px;">'
+            h_ = (f'<div style="{full} gap:70px;">{beside}<div class="card" id="cd{k}" style="position:relative; width:{cw}px; flex-direction:column; align-items:stretch; padding:{"42px 52px" if O == "v" else "36px 56px"}; gap:{rg}px;">'
                   f'{peek}<div style="font-size:{hf}px; font-weight:600; color:{S["em"]}; white-space:nowrap;">{em(it["card_title"])}</div><div style="height:2px; background:{S["chip_off"]}"></div>{rws}</div></div>')
             j_.append(f'tl.fromTo("#cd{k}", {{ opacity: 0, y: 40 }}, {{ opacity: 1, y: 0, duration: 0.45, ease: "back.out(1.6)" }}, {t0:.2f});')
             j_.append(hop(f"#m{k}", t0 + 0.15))
@@ -673,11 +698,11 @@ elif T == "scene":
             key = it["key"]
             mnum = re.fullmatch(r"(\d+)(.*)", key)
             kw = len(key) * 0.62 if re.search(r"[A-Za-z0-9]", key) else vis(key)
-            kpx = int(min(230 if O == "v" else 320, (560 if O == "v" else 1000) / max(kw, 0.8)))
-            kh = f'<span id="nv{k}">{mnum.group(1)}</span>{_h.escape(mnum.group(2))}' if mnum else em(key)
-            ic_ = icon_block(f"p{k}", it["icon"], 170 if O == "v" else 260, S["fill"]) if it.get("icon") else ""
+            kpx = int(min(230 if O == "v" else 320, (560 if O == "v" else 780 if not it.get("icon") else 430 if nar else 520) / max(kw, 0.8)))
+            kh = f'<span id="nv{k}" style="display:inline-block; min-width:{len(mnum.group(1))}ch; text-align:right; font-variant-numeric:tabular-nums">{mnum.group(1)}</span>{_h.escape(mnum.group(2))}' if mnum else em(key)
+            ic_ = icon_block(f"p{k}", it["icon"], 170 if O == "v" else 220, S["fill"]) if it.get("icon") else ""
             dirn = "column" if O == "v" else "row"
-            h_ = f'<div style="{full} flex-direction:{dirn}; gap:{30 if O == "v" else 70}px;">{ic_}<div id="nk{k}" style="font-size:{kpx}px; font-weight:600; color:{S["em"]}; line-height:1; white-space:nowrap;">{kh}</div></div>'
+            h_ = f'<div style="{full} flex-direction:{dirn}; gap:{30 if O == "v" else 56}px;">{ic_}<div id="nk{k}" style="font-size:{kpx}px; font-weight:600; color:{S["em"]}; line-height:1; white-space:nowrap;">{kh}</div></div>'
             j_.append(f'tl.fromTo("#nk{k}", {{ opacity: 0, y: -140, scaleY: 1.15, scaleX: 0.9 }}, {{ opacity: 1, y: 0, scaleY: 1.15, scaleX: 0.9, duration: 0.22, ease: "power2.in" }}, {t0:.2f});')
             j_.append(f'tl.to("#nk{k}", {{ scaleY: 0.82, scaleX: 1.14, duration: 0.06, ease: "power1.out" }}, {t0 + 0.22:.2f});')
             j_.append(f'tl.to("#nk{k}", {{ scaleY: 1, scaleX: 1, duration: 0.28, ease: "elastic.out(1, 0.45)" }}, {t0 + 0.28:.2f});')
@@ -686,13 +711,18 @@ elif T == "scene":
             if ic_:
                 j_ += icon_in(f"#p{k}", it.get("motion"), t0 + 0.3, hold)
         body.append(f'<div class="scn" id="sc{k}" style="left:{sx}px; top:{sy}px; width:{sw_}px; height:{sh_}px;">{h_}</div>')
-        spk = int(min(tpx, sw_ * 0.95 / max(vis(it["text"]), 1)))
-        body.append(f'<div class="stt" id="st{k}" style="position:absolute; left:{sx}px; top:{ty + (tpx - spk) * 0.6:.0f}px; width:{sw_}px; text-align:center; font-size:{spk}px; font-weight:600; line-height:1.2; white-space:nowrap; opacity:0;">{em(it["text"])}</div>')
+        if O == "h" and lay in ("left", "right"):
+            ls_ = it["text"].split("|")
+            spk = int(min(tpx, tw * 0.96 / max(map(vis, ls_)))) if len(ls_) > 1 else int(min(tpx, 3 * tw * 0.92 / max(vis(it["text"]), 1)))
+            body.append(f'<div class="stt" id="st{k}" style="position:absolute; left:{tx}px; top:{sy}px; width:{tw}px; height:{sh_}px; display:flex; align-items:center; font-size:{spk}px; font-weight:600; line-height:{TLH}; opacity:0;"><div style="text-wrap:balance">{em(it["text"])}</div></div>')
+        else:
+            spk = int(min(tpx, sw_ * 0.95 / max(vis(it["text"]), 1)))
+            body.append(f'<div class="stt" id="st{k}" style="position:absolute; left:{sx}px; top:{ty + (tpx - spk) * 0.6:.0f}px; width:{sw_}px; text-align:center; font-size:{spk}px; font-weight:600; line-height:1.2; white-space:nowrap; opacity:0;">{em(it["text"].replace("|", ""))}</div>')
         js.append(f'tl.set("#sc{k}", {{ opacity: 1 }}, {t0:.2f});')
         js += j_
-        js.append(f'tl.fromTo("#st{k}", {{ opacity: 0, y: 20 }}, {{ opacity: 1, y: 0, duration: 0.3, ease: "power3.out" }}, {t0 + 0.1:.2f});')
+        js.append(f'tl.fromTo("#st{k}", {{ opacity: 0, {MOVE[lay][0]} }}, {{ opacity: 1, x: 0, y: 0, duration: 0.45, ease: "expo.out" }}, {t0 + 0.1:.2f});')
         js.append(f'tl.set("#d{k}", {{ backgroundColor: "{S["fill"]}" }}, {t0:.2f}); tl.fromTo("#d{k}", {{ scale: 1 }}, {{ scale: 1.5, duration: 0.15, yoyo: true, repeat: 1, ease: "power1.out", immediateRender: false }}, {t0:.2f});')
-        js.append(f'tl.to(["#sc{k}", "#st{k}"], {{ opacity: 0, x: -50, duration: 0.3, ease: "power2.in" }}, {t1 - 0.3:.2f});')
+        js.append(f'tl.to(["#sc{k}", "#st{k}"], {{ opacity: 0, {MOVE[lay][1]}, duration: 0.24, ease: "power2.in" }}, {t1 - 0.24:.2f});')  # 退場比進場快
         shots.append(t1 - 0.5)  # 這一幕所有東西都進場後、離場前
     js.append(f'tl.to(["#head", "#dots"], {{ opacity: 0, duration: 0.3 }}, {te - 0.3:.2f});')
     # 結尾：帶頭的主角＋結尾句，整組在可用範圍裡上下置中
